@@ -1,0 +1,3 @@
+xcode_proj 'THVideoFaceSwapper.xcodeproj'
+
+warning_regex 'TODO:', /\s+\/\/\s?TODO:/
