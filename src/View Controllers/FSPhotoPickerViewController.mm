@@ -61,9 +61,12 @@ UIImagePickerControllerDelegate>
 {
     const CGRect collectionViewFrame = CGRectMake(0.0f, 0.0f, self.view.frame.size.width, self.view.frame.size.height);
     UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+    flowLayout.itemSize = CGSizeMake(100.0f, 100.0f);
+    flowLayout.minimumInteritemSpacing = 0.0f;
     UICollectionView *facesCollectionView = [[UICollectionView alloc] initWithFrame:collectionViewFrame collectionViewLayout:flowLayout];
     [facesCollectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:kFSCellReuseIdentifier];
     facesCollectionView.backgroundColor = [UIColor whiteColor];
+    facesCollectionView.contentInset = UIEdgeInsetsMake(10.0f, 10.0f, 0.0f, 10.0f);
     facesCollectionView.delegate = self;
     facesCollectionView.dataSource = self;
     [self.view addSubview:facesCollectionView];
@@ -166,6 +169,19 @@ UIImagePickerControllerDelegate>
     });
 }
 
+ UIImage * uiimageFromOFImage(ofImage inputImage)
+{
+    int width = inputImage.width;
+    int height = inputImage.height;
+    float pixelForChannel = 3;
+    CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, inputImage.getPixels(), width*height*pixelForChannel, NULL);
+    CGImageRef imageRef = CGImageCreate(width, height, 8, 24, pixelForChannel*width, CGColorSpaceCreateDeviceRGB(), kCGBitmapByteOrderDefault, provider, NULL, NO, kCGRenderingIntentDefault);
+    UIImage *pngImge = [UIImage imageWithCGImage:imageRef];
+    NSData *imageData = UIImagePNGRepresentation(pngImge);
+    UIImage *output = [UIImage imageWithData:imageData];
+    return output;
+}
+
 #pragma mark - UIImagePickerController Delegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
@@ -213,8 +229,21 @@ UIImagePickerControllerDelegate>
 
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
+    // TODO: Create custom face picker cell with activity view
     UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kFSCellReuseIdentifier forIndexPath:indexPath];
-    cell.backgroundColor = [UIColor yellowColor];
+
+    dispatch_async(dispatch_queue_create("cellImageQueue", NULL), ^{
+        ofImage preInstalledImage;
+        preInstalledImage.loadImage(mainApp->faces.getPath(indexPath.row));
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:uiimageFromOFImage(preInstalledImage)];
+        imageView.frame = cell.contentView.frame;
+        imageView.contentMode = UIViewContentModeScaleAspectFit;
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [cell.contentView addSubview:imageView];
+        });
+    });
+    
     return cell;
 }
 

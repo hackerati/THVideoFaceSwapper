@@ -657,6 +657,7 @@
 				<string>1D60588E0D05DD3D006BFB54</string>
 				<string>1D60588F0D05DD3D006BFB54</string>
 				<string>9255DD331112741900D6945E</string>
+				<string>E4308113EB167D353D41A16D</string>
 			</array>
 			<key>buildRules</key>
 			<array/>
@@ -4038,6 +4039,86 @@
 			<string>E41D410213B3A0D800A75A5D</string>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
+		</dict>
+		<key>E4308113EB167D353D41A16D</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array/>
+			<key>inputPaths</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXShellScriptBuildPhase</string>
+			<key>name</key>
+			<string>Generate Mayday Flags</string>
+			<key>outputPaths</key>
+			<array/>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+			<key>shellPath</key>
+			<string>/usr/bin/ruby</string>
+			<key>shellScript</key>
+			<string># encoding: utf-8
+Encoding.default_external = "utf-8"
+
+def abstract_flag_matcher_5993(file_path, file_contents)
+  
+return if File.fnmatch("*Pods/*", file_path)
+
+  line_number_to_warning_hash = lambda do 
+    lambda do |file_contents|
+  hash = {}
+  lines = file_contents.split("
+")
+  lines.each_with_index do |line, line_number| 
+    message = lambda do |line|
+  line =~ Regexp.new('(?-mix:\s+\/\/\s?TODO:)') ? "TODO:" : nil
+end
+.call(line)
+    hash[line_number + 1] = message if message
+  end
+  hash
+end
+.call(file_contents)
+  end.call
+
+  if line_number_to_warning_hash &amp;&amp; line_number_to_warning_hash.keys.count &gt; 0
+    final_warning_array = []
+    line_number_to_warning_hash.map do |line_number, warning_str|
+      final_warning_array &lt;&lt; "#{file_path}:#{line_number}: warning: #{warning_str} [Wmayday]"  
+    end
+    final_warning_array.join("
+")
+  else
+    false
+  end
+end
+
+
+Dir[ENV["SRCROOT"] + "/**/*.{m,h,swift}"].each do |filename|
+  # Could be a dir with .m, like Underscore.m's dir
+  if (File.file?(filename))
+    file = File.open(filename, 'r')
+    file_contents = file.read
+abstract_flag_output = abstract_flag_matcher_5993(file.path, file_contents)
+if abstract_flag_output &amp;&amp; true
+  puts abstract_flag_output
+  
+end
+
+  end
+end
+
+if @any_errors
+  exit(1)
+else
+  exit
+end
+
+</string>
+			<key>showEnvVarsInLog</key>
+			<string>0</string>
 		</dict>
 		<key>E4385429A1E63ACEDC39A612</key>
 		<dict>
