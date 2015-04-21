@@ -13,8 +13,4 @@
 
 @interface THPhotoPickerViewController : UIViewController
 
-- (instancetype)initWithFaces:(NSArray *)faces;
-
-- (void)presentVC:(BOOL)animated;
-
 @end

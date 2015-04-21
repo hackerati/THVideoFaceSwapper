@@ -1,7 +1,6 @@
 #include "ofApp.h"
 
 THPhotoPickerViewController *photoPicker;
-NSMutableArray *facesArray;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -10,20 +9,11 @@ void ofApp::setup(){
     faces.allowExt("png");
     faces.open("faces/");
     faces.listDir();
-    currentFace = 0;
-    
-    facesArray = [NSMutableArray array];
-    if(faces.size() != 0){
-        for (int i = 0; i < faces.size(); i++) {
-            NSString *pathToCurrentFace = [NSString stringWithCString:faces.getPath(i).c_str()
-                                                             encoding:[NSString defaultCStringEncoding]];
-            [facesArray addObject:pathToCurrentFace];
-        }
-    }
-    photoPicker = [[THPhotoPickerViewController alloc] initWithFaces:facesArray];
     
     ofSetVerticalSync(true);
     cloneReady = false;
+    
+    photoPicker = [[THPhotoPickerViewController alloc] init];
     
     int screenWidth = [UIScreen mainScreen].bounds.size.width;
     int screenHeight = [UIScreen mainScreen].bounds.size.height;
@@ -167,7 +157,8 @@ void ofApp::loadOFImage(ofImage input) {
         }
         
         src = input;
-        srcTracker.update(toCv(input));
+        Mat cvImage = toCv(input);
+        srcTracker.update(cvImage);
         srcPoints = srcTracker.getImagePoints();
         cloneReady = true;
     }
@@ -175,7 +166,14 @@ void ofApp::loadOFImage(ofImage input) {
 
 void ofApp::setupCam(int width, int height) {
     cam.setDesiredFrameRate(24);
-    cam.setDeviceID(1); // front facing camera
+    
+    if ( cam.listDevices().size() > 1 ) {
+        cam.setDeviceID(1); // front facing camera
+    }
+    else {
+        cam.setDeviceID(0); // rear facing camera
+    }
+    
     cam.initGrabber(width, height);
 }
 

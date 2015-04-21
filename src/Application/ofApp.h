@@ -52,7 +52,6 @@ public:
     ofFbo srcFbo, maskFbo;
     
     ofDirectory faces;
-    int currentFace;
 };
 
 

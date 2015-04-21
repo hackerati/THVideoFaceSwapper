@@ -17,7 +17,6 @@ static NSArray *kTHLoadingDetails = @[@"You're gonna look great!", @"Ooo how han
 
 static const CGSize kTHCellSize = (CGSize){100.0f, 100.0f};
 static const CGFloat kTHItemSpacing = 2.0f;
-static const CGFloat kTHAnimationDuration = 0.3f;
 
 @interface THPhotoPickerViewController ()
 <UICollectionViewDataSource,
@@ -28,19 +27,17 @@ UIImagePickerControllerDelegate>
     ofApp *mainApp;
 }
 
-@property (strong, nonatomic) NSArray *facesArray;
 @property (nonatomic) UICollectionView *facesCollectionView;
 
 @end
 
 @implementation THPhotoPickerViewController
 
-- (instancetype)initWithFaces:(NSArray *)faces
+- (instancetype)init
 {
     self = [super init];
     if ( self ) {
         mainApp = (ofApp *)ofGetAppPtr();
-        _facesArray = faces;
         
         self.title = @"Face Selector";
     }
@@ -89,24 +86,6 @@ UIImagePickerControllerDelegate>
     
     [self setupMenuButtons];
     [self setupCollectionView];
-}
-
-#pragma mark - Public
-
-- (void)presentVC:(BOOL)animated
-{
-    const CGFloat targetAlpha = 1.0f;
-    CGFloat animationDuration;
-    if ( animated ) {
-        animationDuration = kTHAnimationDuration;
-    }
-    else {
-        animationDuration = 0.0f;
-    }
-    
-    [UIView animateWithDuration:animationDuration animations:^{
-        self.view.alpha = targetAlpha;
-    }];
 }
 
 #pragma mark - Private
