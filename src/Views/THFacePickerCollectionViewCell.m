@@ -8,8 +8,6 @@
 
 #import "THFacePickerCollectionViewCell.h"
 
-//#include "ofApp.h"
-
 @interface THFacePickerCollectionViewCell ()
 
 @property (nonatomic) UIImageView *faceImageView;

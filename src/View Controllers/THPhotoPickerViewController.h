@@ -10,7 +10,6 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 #include <stdio.h>
-//#include "ofApp.h"
 
 @interface THPhotoPickerViewController : UIViewController
 
