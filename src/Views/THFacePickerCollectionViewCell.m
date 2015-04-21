@@ -12,7 +12,6 @@
 
 @property (nonatomic) UIImageView *faceImageView;
 @property (nonatomic) UIActivityIndicatorView *loadingIndicatorView;
-@property (nonatomic) NSOperationQueue *imageOperationQueue;
 
 @end
 
@@ -31,14 +30,13 @@
         _loadingIndicatorView.center = self.contentView.center;
         [self.contentView addSubview:_loadingIndicatorView];
         
-        _imageOperationQueue = [[NSOperationQueue alloc] init];
-        _imageOperationQueue.maxConcurrentOperationCount = 1;
-        
         self.clipsToBounds = YES;
     }
     
     return self;
 }
+
+#pragma mark - Public
 
 - (void)startLoading
 {

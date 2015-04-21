@@ -91,6 +91,8 @@ UIImagePickerControllerDelegate>
     [self setupCollectionView];
 }
 
+#pragma mark - Public
+
 - (void)presentVC:(BOOL)animated
 {
     const CGFloat targetAlpha = 1.0f;
@@ -106,6 +108,8 @@ UIImagePickerControllerDelegate>
         self.view.alpha = targetAlpha;
     }];
 }
+
+#pragma mark - Private
 
 - (void)dismissVC
 {
@@ -155,6 +159,7 @@ UIImagePickerControllerDelegate>
             
             mainApp->loadOFImage(pickedImage);
             mainApp->setupCam(self.view.frame.size.width, self.view.frame.size.height);
+            [self.facesCollectionView reloadData];
             if ( completion ) {
                 completion();
             }

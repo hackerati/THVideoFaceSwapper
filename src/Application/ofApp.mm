@@ -150,28 +150,26 @@ void ofApp::loadFace(string face){
 
 void ofApp::loadOFImage(ofImage input) {
     
-//    dispatch_async(dispatch_get_main_queue(), ^{
-        cloneReady = false;
-        src.clear();
-        srcPoints.clear();
-        srcTracker.setup();
-//    });
+    cloneReady = false;
+    src.clear();
+    srcPoints.clear();
+    srcTracker.setup();
     
     if(input.getWidth() > 0) {
         
         if(input.getWidth() > input.getHeight()){
+            
             input.resize(ofGetWidth(), input.getHeight()*ofGetWidth() /input.getWidth());
         }
         else{
+            
             input.resize(input.getWidth()*ofGetHeight()/input.getHeight(), ofGetHeight());
         }
         
-//        dispatch_async(dispatch_get_main_queue(), ^{
-            src = input;
-            srcTracker.update(toCv(input));
-            srcPoints = srcTracker.getImagePoints();
-            cloneReady = true;
-//        });
+        src = input;
+        srcTracker.update(toCv(input));
+        srcPoints = srcTracker.getImagePoints();
+        cloneReady = true;
     }
 }
 
