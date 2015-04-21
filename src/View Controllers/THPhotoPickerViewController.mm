@@ -6,7 +6,7 @@
 //
 //
 
-#import "FSPhotoPickerViewController.h"
+#import "THPhotoPickerViewController.h"
 #include "ofApp.h"
 
 #import "MBProgressHUD.h"
@@ -16,7 +16,7 @@ static NSArray *kFSLoadingDetails = @[@"You're gonna look great!", @"Ooo how han
 
 static const CGFloat kFSAnimationDuration = 0.3f;
 
-@interface FSPhotoPickerViewController ()
+@interface THPhotoPickerViewController ()
 <UICollectionViewDataSource,
 UICollectionViewDelegate,
 UINavigationControllerDelegate,
@@ -32,7 +32,7 @@ UIImagePickerControllerDelegate>
 
 @end
 
-@implementation FSPhotoPickerViewController
+@implementation THPhotoPickerViewController
 
 - (instancetype)initWithFaces:(NSArray *)faces
 {

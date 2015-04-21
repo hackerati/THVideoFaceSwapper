@@ -1,6 +1,6 @@
 #include "ofApp.h"
 
-FSPhotoPickerViewController *photoPicker;
+THPhotoPickerViewController *photoPicker;
 NSMutableArray *facesArray;
 
 //--------------------------------------------------------------
@@ -19,7 +19,7 @@ void ofApp::setup(){
             [facesArray addObject:pathToCurrentFace];
         }
     }
-    photoPicker = [[FSPhotoPickerViewController alloc] initWithFaces:facesArray];
+    photoPicker = [[THPhotoPickerViewController alloc] initWithFaces:facesArray];
     
     ofSetVerticalSync(true);
     cloneReady = false;

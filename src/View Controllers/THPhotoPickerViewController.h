@@ -1,5 +1,5 @@
 //
-//  FSPhotoPickerViewController.h
+//  THPhotoPickerViewController.h
 //  videoApp
 //
 //  Created by Clayton Rieck on 4/8/15.
@@ -12,7 +12,7 @@
 #include <stdio.h>
 //#include "ofApp.h"
 
-@interface FSPhotoPickerViewController : UIViewController
+@interface THPhotoPickerViewController : UIViewController
 
 - (instancetype)initWithFaces:(NSArray *)faces;
 
