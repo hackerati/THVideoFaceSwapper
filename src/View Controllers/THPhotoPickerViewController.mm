@@ -9,12 +9,15 @@
 #import "THPhotoPickerViewController.h"
 #include "ofApp.h"
 
+#import "THFacePickerCollectionViewCell.h"
 #import "MBProgressHUD.h"
 
-static NSString *kFSCellReuseIdentifier = @"cell";
-static NSArray *kFSLoadingDetails = @[@"You're gonna look great!", @"Ooo how handsome", @"Your alias is on the way!", @"Funnier than Mrs. Doubtfire"];
+static NSString *kTHCellReuseIdentifier = @"cell";
+static NSArray *kTHLoadingDetails = @[@"You're gonna look great!", @"Ooo how handsome", @"Your alias is on the way!", @"Better than Mrs. Doubtfire"];
 
-static const CGFloat kFSAnimationDuration = 0.3f;
+static const CGSize kTHCellSize = (CGSize){100.0f, 100.0f};
+static const CGFloat kTHItemSpacing = 2.0f;
+static const CGFloat kTHAnimationDuration = 0.3f;
 
 @interface THPhotoPickerViewController ()
 <UICollectionViewDataSource,
@@ -26,8 +29,6 @@ UIImagePickerControllerDelegate>
 }
 
 @property (strong, nonatomic) NSArray *facesArray;
-@property (strong, nonatomic) NSString *currentFacePath;
-@property (strong, nonatomic) NSCache *faceCache;
 @property (nonatomic) UICollectionView *facesCollectionView;
 
 @end
@@ -39,8 +40,6 @@ UIImagePickerControllerDelegate>
     self = [super init];
     if ( self ) {
         mainApp = (ofApp *)ofGetAppPtr();
-        _faceCache = [[NSCache alloc] init];
-        _currentFacePath = @"";
         _facesArray = faces;
         
         self.title = @"Face Selector";
@@ -60,17 +59,21 @@ UIImagePickerControllerDelegate>
 - (void)setupCollectionView
 {
     const CGRect collectionViewFrame = CGRectMake(0.0f, 0.0f, self.view.frame.size.width, self.view.frame.size.height);
+    const UIEdgeInsets collectionViewInsets = UIEdgeInsetsMake(8.0f, 8.0f, 0.0f, 8.0f);
+    
     UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
-    flowLayout.itemSize = CGSizeMake(100.0f, 100.0f);
-    flowLayout.minimumInteritemSpacing = 0.0f;
+    flowLayout.itemSize = kTHCellSize;
+    flowLayout.minimumInteritemSpacing = kTHItemSpacing;
+    flowLayout.minimumLineSpacing = kTHItemSpacing;
+    
     UICollectionView *facesCollectionView = [[UICollectionView alloc] initWithFrame:collectionViewFrame collectionViewLayout:flowLayout];
-    [facesCollectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:kFSCellReuseIdentifier];
+    [facesCollectionView registerClass:[THFacePickerCollectionViewCell class] forCellWithReuseIdentifier:kTHCellReuseIdentifier];
     facesCollectionView.backgroundColor = [UIColor whiteColor];
-    facesCollectionView.contentInset = UIEdgeInsetsMake(10.0f, 10.0f, 0.0f, 10.0f);
+    facesCollectionView.contentInset = collectionViewInsets;
     facesCollectionView.delegate = self;
     facesCollectionView.dataSource = self;
     [self.view addSubview:facesCollectionView];
-    self.facesCollectionView = facesCollectionView;
+    _facesCollectionView = facesCollectionView;
 }
 
 - (void)dealloc
@@ -93,7 +96,7 @@ UIImagePickerControllerDelegate>
     const CGFloat targetAlpha = 1.0f;
     CGFloat animationDuration;
     if ( animated ) {
-        animationDuration = kFSAnimationDuration;
+        animationDuration = kTHAnimationDuration;
     }
     else {
         animationDuration = 0.0f;
@@ -121,22 +124,12 @@ UIImagePickerControllerDelegate>
     [self presentViewController:imagePicker animated:YES completion:nil];
 }
 
-- (NSString *)currentFace
-{
-    return self.currentFacePath;
-}
-
-- (string)currentFaceCString
-{
-    return string([self.currentFacePath UTF8String]);
-}
-
 - (NSString *)randomLoadingDetail
 {
     const NSInteger lowerBound = 0;
-    const NSInteger upperBound = kFSLoadingDetails.count;
+    const NSInteger upperBound = kTHLoadingDetails.count;
     const NSInteger randomPosition = lowerBound + arc4random() % (upperBound - lowerBound);
-    return kFSLoadingDetails[randomPosition];
+    return kTHLoadingDetails[randomPosition];
 }
 
 - (void)showLoadingHUD
@@ -169,7 +162,7 @@ UIImagePickerControllerDelegate>
     });
 }
 
- UIImage * uiimageFromOFImage(ofImage inputImage)
+UIImage * uiimageFromOFImage(ofImage inputImage)
 {
     int width = inputImage.width;
     int height = inputImage.height;
@@ -229,18 +222,19 @@ UIImagePickerControllerDelegate>
 
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    // TODO: Create custom face picker cell with activity view
-    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kFSCellReuseIdentifier forIndexPath:indexPath];
+    THFacePickerCollectionViewCell *cell = (THFacePickerCollectionViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kTHCellReuseIdentifier forIndexPath:indexPath];
 
+    cell.currentIndexPath = indexPath;
+    [cell clearImage];
+    [cell startLoading];
     dispatch_async(dispatch_queue_create("cellImageQueue", NULL), ^{
         ofImage preInstalledImage;
         preInstalledImage.loadImage(mainApp->faces.getPath(indexPath.row));
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:uiimageFromOFImage(preInstalledImage)];
-        imageView.frame = cell.contentView.frame;
-        imageView.contentMode = UIViewContentModeScaleAspectFit;
+        UIImage *faceImage = uiimageFromOFImage(preInstalledImage);
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            [cell.contentView addSubview:imageView];
+            [cell setFaceWithImage:faceImage atIndexPath:indexPath];
+            [cell stopLoading];
         });
     });
     

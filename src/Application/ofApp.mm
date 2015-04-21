@@ -6,6 +6,7 @@ NSMutableArray *facesArray;
 //--------------------------------------------------------------
 void ofApp::setup(){
     faces.allowExt("jpg");
+    faces.allowExt("jpeg");
     faces.allowExt("png");
     faces.open("faces/");
     faces.listDir();
@@ -40,7 +41,9 @@ void ofApp::setup(){
     srcTracker.setIterations(15);
     srcTracker.setAttempts(4);
     
-    loadFace("faces/Barack_Obama,_official_photo_portrait,_111th_Congress.jpg");
+    if ( faces.size() > 0 ) {
+        loadFace(faces.getPath(0));
+    }
     
     colorCv.allocate(cam.getWidth(), cam.getHeight());
 }
