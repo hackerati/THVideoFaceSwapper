@@ -63,9 +63,10 @@ UIImagePickerControllerDelegate>
 {
     const CGRect collectionViewFrame = CGRectMake(0.0f, 0.0f, self.view.frame.size.width, self.view.frame.size.height);
     const UIEdgeInsets collectionViewInsets = UIEdgeInsetsMake(8.0f, 8.0f, 0.0f, 8.0f);
+    const CGSize headerViewSize = CGSizeMake(self.view.frame.size.width, 30.0f);
     
     UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
-    flowLayout.headerReferenceSize = CGSizeMake(self.view.frame.size.width, 30.0f);
+    flowLayout.headerReferenceSize = headerViewSize;
     flowLayout.itemSize = kTHCellSize;
     flowLayout.minimumInteritemSpacing = kTHItemSpacing;
     flowLayout.minimumLineSpacing = kTHItemSpacing;
@@ -100,6 +101,7 @@ UIImagePickerControllerDelegate>
 
 - (void)dismissVC
 {
+    mainApp->setupCam([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.width);
     [self dismissViewControllerAnimated:YES completion:^{
         [MBProgressHUD hideHUDForView:self.view animated:YES];
     }];
@@ -248,7 +250,9 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
 
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
 {
+    NSLog(@"%zd", indexPath.section);
     THFacesCollectionReusableView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:kTHSupplementaryHeaderViewReuseIdentifier forIndexPath:indexPath];
+    headerView.title = nil;
     if ( indexPath.section == 0 ) {
         headerView.title = @"Pre-Loaded Faces";
     }
