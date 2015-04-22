@@ -6,8 +6,6 @@
 //
 //
 
-#import <UIKit/UIKit.h>
-
 @interface THFacePickerCollectionViewCell : UICollectionViewCell
 
 @property (strong, nonatomic) NSIndexPath *currentIndexPath;

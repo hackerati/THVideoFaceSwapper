@@ -13,8 +13,11 @@
 #import "THFacesCollectionReusableView.h"
 #import "MBProgressHUD.h"
 
+#import "UIImage+Decode.h"
+
 static NSString *kTHCellReuseIdentifier = @"cell";
 static NSString *kTHSupplementaryHeaderViewReuseIdentifier = @"supplementaryHeaderView";
+static NSString *kTHDocumentsDirectoryPath = ofxStringToNSString(ofxiOSGetDocumentsDirectory());
 static NSArray *kTHLoadingDetails = @[@"You're gonna look great!", @"Ooo how handsome", @"Your alias is on the way!", @"Better than Mrs. Doubtfire"];
 
 static const CGSize kTHCellSize = (CGSize){100.0f, 100.0f};
@@ -42,8 +45,7 @@ UIImagePickerControllerDelegate>
     if ( self ) {
         mainApp = (ofApp *)ofGetAppPtr();
         
-        NSString *documentsPath = ofxStringToNSString(ofxiOSGetDocumentsDirectory());
-        _savedFaces = (NSMutableArray *)[[[NSFileManager defaultManager] contentsOfDirectoryAtPath:documentsPath error:nil] mutableCopy];
+        _savedFaces = (NSMutableArray *)[[[NSFileManager defaultManager] contentsOfDirectoryAtPath:kTHDocumentsDirectoryPath error:nil] mutableCopy];
 
         self.title = @"Face Selector";
     }
@@ -186,7 +188,7 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
 
 - (UIImage *)imageFromDocumentsDirectoryNamed:(NSString *)name
 {
-    NSString *imagePath = [ofxStringToNSString(ofxiOSGetDocumentsDirectory()) stringByAppendingPathComponent:name];
+    NSString *imagePath = [kTHDocumentsDirectoryPath stringByAppendingPathComponent:name];
     return [UIImage imageWithContentsOfFile:imagePath];
 }
 
@@ -252,6 +254,7 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
 {
     NSLog(@"%zd", indexPath.section);
     THFacesCollectionReusableView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:kTHSupplementaryHeaderViewReuseIdentifier forIndexPath:indexPath];
+    
     headerView.title = nil;
     if ( indexPath.section == 0 ) {
         headerView.title = @"Pre-Loaded Faces";
@@ -269,7 +272,7 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     cell.currentIndexPath = indexPath;
     [cell clearImage];
     [cell startLoading];
-    dispatch_async(dispatch_queue_create("cellImageQueue", NULL), ^{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         UIImage *faceImage;
         if ( indexPath.section == 0 ) {
             ofImage preInstalledImage;
@@ -278,7 +281,7 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
         }
         else {
             NSString *currentImage = [NSString stringWithFormat:@"%zd", indexPath.row];
-            faceImage = [UIImage imageWithContentsOfFile:[ofxStringToNSString(ofxiOSGetDocumentsDirectory()) stringByAppendingPathComponent:currentImage]];
+            faceImage = [[UIImage imageWithContentsOfFile:[kTHDocumentsDirectoryPath stringByAppendingPathComponent:currentImage]] decodedImage];
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{

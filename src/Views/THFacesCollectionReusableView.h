@@ -6,8 +6,6 @@
 //
 //
 
-#import <UIKit/UIKit.h>
-
 @interface THFacesCollectionReusableView : UICollectionReusableView
 
 @property (nonatomic, assign) NSString *title;
