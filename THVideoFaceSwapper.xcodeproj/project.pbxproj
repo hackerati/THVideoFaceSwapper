@@ -11,6 +11,7 @@
 		010F070F1AE5840D00551A18 /* THPhotoPickerViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 010F070B1AE5840D00551A18 /* THPhotoPickerViewController.mm */; };
 		010F07101AE5840D00551A18 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 010F070D1AE5840D00551A18 /* MBProgressHUD.m */; };
 		010F07121AE5841900551A18 /* MediaAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 010F07111AE5841900551A18 /* MediaAssets.xcassets */; };
+		0158DAB21AE806A100DCAB2F /* THFacesCollectionReusableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0158DAB11AE806A100DCAB2F /* THFacesCollectionReusableView.m */; };
 		01B2F1501AE6977E00B5E69A /* THFacePickerCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 01B2F14F1AE6977E00B5E69A /* THFacePickerCollectionViewCell.m */; };
 		091CD626FECB03B3A6B3A1B2 /* PAW.cc in Sources */ = {isa = PBXBuildFile; fileRef = 04BD78075F8C2DEC76B2F33A /* PAW.cc */; };
 		10B69DE456AED1288FC9316B /* Tracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A810DF70319A10353588F5DB /* Tracker.cpp */; };
@@ -94,6 +95,8 @@
 		010F070D1AE5840D00551A18 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
 		010F07111AE5841900551A18 /* MediaAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = MediaAssets.xcassets; sourceTree = "<group>"; };
 		011E372AEA4DFBC1A32C2851 /* all_indices.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = all_indices.h; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/all_indices.h; sourceTree = SOURCE_ROOT; };
+		0158DAB01AE806A100DCAB2F /* THFacesCollectionReusableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = THFacesCollectionReusableView.h; sourceTree = "<group>"; };
+		0158DAB11AE806A100DCAB2F /* THFacesCollectionReusableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = THFacesCollectionReusableView.m; sourceTree = "<group>"; };
 		0173A3F435DECD5A4DDE0B8E /* logger.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = logger.h; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/logger.h; sourceTree = SOURCE_ROOT; };
 		01B2F14E1AE6977E00B5E69A /* THFacePickerCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = THFacePickerCollectionViewCell.h; sourceTree = "<group>"; };
 		01B2F14F1AE6977E00B5E69A /* THFacePickerCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = THFacePickerCollectionViewCell.m; sourceTree = "<group>"; };
@@ -315,6 +318,8 @@
 				019E69F21AE5870F003A6A7A /* Loading */,
 				01B2F14E1AE6977E00B5E69A /* THFacePickerCollectionViewCell.h */,
 				01B2F14F1AE6977E00B5E69A /* THFacePickerCollectionViewCell.m */,
+				0158DAB01AE806A100DCAB2F /* THFacesCollectionReusableView.h */,
+				0158DAB11AE806A100DCAB2F /* THFacesCollectionReusableView.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1060,6 +1065,7 @@
 				C602002DE761F9B52DB4400A /* ObjectFinder.cpp in Sources */,
 				010F070F1AE5840D00551A18 /* THPhotoPickerViewController.mm in Sources */,
 				7CDAD32BE4FA46701E3552C7 /* RunningBackground.cpp in Sources */,
+				0158DAB21AE806A100DCAB2F /* THFacesCollectionReusableView.m in Sources */,
 				10B69DE456AED1288FC9316B /* Tracker.cpp in Sources */,
 				A6668C5B1272D7FCD5B5A16F /* Utilities.cpp in Sources */,
 				DBCB84A37F9AECC254870D79 /* Wrappers.cpp in Sources */,

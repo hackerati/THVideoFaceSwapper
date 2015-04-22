@@ -10,9 +10,11 @@
 #include "ofApp.h"
 
 #import "THFacePickerCollectionViewCell.h"
+#import "THFacesCollectionReusableView.h"
 #import "MBProgressHUD.h"
 
 static NSString *kTHCellReuseIdentifier = @"cell";
+static NSString *kTHSupplementaryHeaderViewReuseIdentifier = @"supplementaryHeaderView";
 static NSArray *kTHLoadingDetails = @[@"You're gonna look great!", @"Ooo how handsome", @"Your alias is on the way!", @"Better than Mrs. Doubtfire"];
 
 static const CGSize kTHCellSize = (CGSize){100.0f, 100.0f};
@@ -63,12 +65,14 @@ UIImagePickerControllerDelegate>
     const UIEdgeInsets collectionViewInsets = UIEdgeInsetsMake(8.0f, 8.0f, 0.0f, 8.0f);
     
     UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+    flowLayout.headerReferenceSize = CGSizeMake(self.view.frame.size.width, 30.0f);
     flowLayout.itemSize = kTHCellSize;
     flowLayout.minimumInteritemSpacing = kTHItemSpacing;
     flowLayout.minimumLineSpacing = kTHItemSpacing;
     
     UICollectionView *facesCollectionView = [[UICollectionView alloc] initWithFrame:collectionViewFrame collectionViewLayout:flowLayout];
     [facesCollectionView registerClass:[THFacePickerCollectionViewCell class] forCellWithReuseIdentifier:kTHCellReuseIdentifier];
+    [facesCollectionView registerClass:[THFacesCollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:kTHSupplementaryHeaderViewReuseIdentifier];
     facesCollectionView.backgroundColor = [UIColor whiteColor];
     facesCollectionView.contentInset = collectionViewInsets;
     facesCollectionView.delegate = self;
@@ -240,6 +244,18 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     else {
         return self.savedFaces.count;
     }
+}
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
+{
+    THFacesCollectionReusableView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:kTHSupplementaryHeaderViewReuseIdentifier forIndexPath:indexPath];
+    if ( indexPath.section == 0 ) {
+        headerView.title = @"Pre-Loaded Faces";
+    }
+    else {
+        headerView.title = @"Saved Faces";
+    }
+    return headerView;
 }
 
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
