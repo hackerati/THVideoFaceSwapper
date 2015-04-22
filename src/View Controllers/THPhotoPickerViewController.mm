@@ -137,16 +137,27 @@ UIImagePickerControllerDelegate>
         ofxiOSUIImageToOFImage(image, pickedImage);
         pickedImage.rotate90(1);
         
+        NSInteger imageNumber;
+        if ( self.savedFaces.count <= 0 ) {
+            imageNumber = 0;
+        }
+        else {
+            imageNumber = self.savedFaces.count;
+        }
+        NSString *savedFaceName = [NSString stringWithFormat:@"%zd", imageNumber];
+        string cStringSavedFaceName = ofxNSStringToString(savedFaceName) + ".png";
         // Save image to documents directory
-        pickedImage.saveImage(ofxiOSGetDocumentsDirectory()+"takenPhoto.png");
+        pickedImage.saveImage(ofxiOSGetDocumentsDirectory() + cStringSavedFaceName);
+        [self.savedFaces addObject:ofxStringToNSString(cStringSavedFaceName)];
         
-        pickedImage.setImageType(OF_IMAGE_COLOR);
+        pickedImage.setImageType(OF_IMAGE_COLOR); // set the type AFTER we save image to documents
         
         dispatch_async(dispatch_get_main_queue(), ^{
             
             mainApp->loadOFImage(pickedImage);
             mainApp->setupCam(self.view.frame.size.width, self.view.frame.size.height);
             
+            [self.facesCollectionView reloadSections:[[NSIndexSet alloc] initWithIndex:1]];
             if ( completion ) {
                 completion();
             }
@@ -246,7 +257,8 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
             faceImage = uiimageFromOFImage(preInstalledImage);
         }
         else {
-            faceImage = [UIImage imageWithContentsOfFile:[ofxStringToNSString(ofxiOSGetDocumentsDirectory()) stringByAppendingPathComponent:@"takenPhoto.png"]];
+            NSString *currentImage = [NSString stringWithFormat:@"%zd", indexPath.row];
+            faceImage = [UIImage imageWithContentsOfFile:[ofxStringToNSString(ofxiOSGetDocumentsDirectory()) stringByAppendingPathComponent:currentImage]];
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{
