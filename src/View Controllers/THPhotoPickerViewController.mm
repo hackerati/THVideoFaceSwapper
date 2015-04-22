@@ -28,6 +28,7 @@ UIImagePickerControllerDelegate>
 }
 
 @property (nonatomic) UICollectionView *facesCollectionView;
+@property (nonatomic) NSMutableArray *savedFaces;
 
 @end
 
@@ -39,6 +40,9 @@ UIImagePickerControllerDelegate>
     if ( self ) {
         mainApp = (ofApp *)ofGetAppPtr();
         
+        NSString *documentsPath = ofxStringToNSString(ofxiOSGetDocumentsDirectory());
+        _savedFaces = (NSMutableArray *)[[[NSFileManager defaultManager] contentsOfDirectoryAtPath:documentsPath error:nil] mutableCopy];
+
         self.title = @"Face Selector";
     }
     return self;
@@ -131,14 +135,18 @@ UIImagePickerControllerDelegate>
         
         ofImage pickedImage;
         ofxiOSUIImageToOFImage(image, pickedImage);
-        pickedImage.setImageType(OF_IMAGE_COLOR);
         pickedImage.rotate90(1);
+        
+        // Save image to documents directory
+        pickedImage.saveImage(ofxiOSGetDocumentsDirectory()+"takenPhoto.png");
+        
+        pickedImage.setImageType(OF_IMAGE_COLOR);
         
         dispatch_async(dispatch_get_main_queue(), ^{
             
             mainApp->loadOFImage(pickedImage);
             mainApp->setupCam(self.view.frame.size.width, self.view.frame.size.height);
-            [self.facesCollectionView reloadData];
+            
             if ( completion ) {
                 completion();
             }
@@ -159,6 +167,12 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     return output;
 }
 
+- (UIImage *)imageFromDocumentsDirectoryNamed:(NSString *)name
+{
+    NSString *imagePath = [ofxStringToNSString(ofxiOSGetDocumentsDirectory()) stringByAppendingPathComponent:name];
+    return [UIImage imageWithContentsOfFile:imagePath];
+}
+
 #pragma mark - UIImagePickerController Delegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
@@ -169,7 +183,6 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
         [self loadFace:info[UIImagePickerControllerOriginalImage] withCompletion:^{
             [self dismissVC];
         }];
-
     }];
 }
 
@@ -186,7 +199,16 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     
     dispatch_async(dispatch_queue_create("imageLoadingQueue", NULL), ^{
         dispatch_async(dispatch_get_main_queue(), ^{
-            mainApp->loadFace(mainApp->faces.getPath(indexPath.row));
+            if ( indexPath.section == 0 ) {
+                mainApp->loadFace(mainApp->faces.getPath(indexPath.row));
+            }
+            else {
+                NSString *imageName = self.savedFaces[indexPath.row];
+                ofImage savedImage;
+                ofxiOSUIImageToOFImage([self imageFromDocumentsDirectoryNamed:imageName], savedImage);
+                mainApp->loadOFImage(savedImage);
+            }
+            
             [self dismissVC];
         });
     });
@@ -196,12 +218,17 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-    return 1;
+    return 2;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return mainApp->faces.size();
+    if ( section == 0 ) {
+        return mainApp->faces.size();
+    }
+    else {
+        return self.savedFaces.count;
+    }
 }
 
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -212,9 +239,15 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     [cell clearImage];
     [cell startLoading];
     dispatch_async(dispatch_queue_create("cellImageQueue", NULL), ^{
-        ofImage preInstalledImage;
-        preInstalledImage.loadImage(mainApp->faces.getPath(indexPath.row));
-        UIImage *faceImage = uiimageFromOFImage(preInstalledImage);
+        UIImage *faceImage;
+        if ( indexPath.section == 0 ) {
+            ofImage preInstalledImage;
+            preInstalledImage.loadImage(mainApp->faces.getPath(indexPath.row));
+            faceImage = uiimageFromOFImage(preInstalledImage);
+        }
+        else {
+            faceImage = [UIImage imageWithContentsOfFile:[ofxStringToNSString(ofxiOSGetDocumentsDirectory()) stringByAppendingPathComponent:@"takenPhoto.png"]];
+        }
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [cell setFaceWithImage:faceImage atIndexPath:indexPath];

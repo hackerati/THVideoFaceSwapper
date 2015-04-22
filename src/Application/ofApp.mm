@@ -4,6 +4,7 @@ THPhotoPickerViewController *photoPicker;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    cout << ofxiOSGetUIWindow().bounds.size.width << " : " << ofxiOSGetUIWindow().bounds.size.height << endl;
     faces.allowExt("jpg");
     faces.allowExt("jpeg");
     faces.allowExt("png");
