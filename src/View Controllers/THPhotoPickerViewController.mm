@@ -10,9 +10,14 @@
 #include "ofApp.h"
 
 #import "THFacePickerCollectionViewCell.h"
+#import "THFacesCollectionReusableView.h"
 #import "MBProgressHUD.h"
 
+#import "UIImage+Decode.h"
+
 static NSString *kTHCellReuseIdentifier = @"cell";
+static NSString *kTHSupplementaryHeaderViewReuseIdentifier = @"supplementaryHeaderView";
+static NSString *kTHDocumentsDirectoryPath = ofxStringToNSString(ofxiOSGetDocumentsDirectory());
 static NSArray *kTHLoadingDetails = @[@"You're gonna look great!", @"Ooo how handsome", @"Your alias is on the way!", @"Better than Mrs. Doubtfire"];
 
 static const CGSize kTHCellSize = (CGSize){100.0f, 100.0f};
@@ -28,6 +33,7 @@ UIImagePickerControllerDelegate>
 }
 
 @property (nonatomic) UICollectionView *facesCollectionView;
+@property (nonatomic) NSMutableArray *savedFaces;
 
 @end
 
@@ -39,6 +45,8 @@ UIImagePickerControllerDelegate>
     if ( self ) {
         mainApp = (ofApp *)ofGetAppPtr();
         
+        _savedFaces = (NSMutableArray *)[[[NSFileManager defaultManager] contentsOfDirectoryAtPath:kTHDocumentsDirectoryPath error:nil] mutableCopy];
+
         self.title = @"Face Selector";
     }
     return self;
@@ -56,15 +64,18 @@ UIImagePickerControllerDelegate>
 - (void)setupCollectionView
 {
     const CGRect collectionViewFrame = CGRectMake(0.0f, 0.0f, self.view.frame.size.width, self.view.frame.size.height);
-    const UIEdgeInsets collectionViewInsets = UIEdgeInsetsMake(8.0f, 8.0f, 0.0f, 8.0f);
+    const UIEdgeInsets collectionViewInsets = UIEdgeInsetsMake(0.0f, 8.0f, 8.0f, 8.0f);
+    const CGSize headerViewSize = CGSizeMake(self.view.frame.size.width, 30.0f);
     
     UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+    flowLayout.headerReferenceSize = headerViewSize;
     flowLayout.itemSize = kTHCellSize;
     flowLayout.minimumInteritemSpacing = kTHItemSpacing;
     flowLayout.minimumLineSpacing = kTHItemSpacing;
     
     UICollectionView *facesCollectionView = [[UICollectionView alloc] initWithFrame:collectionViewFrame collectionViewLayout:flowLayout];
     [facesCollectionView registerClass:[THFacePickerCollectionViewCell class] forCellWithReuseIdentifier:kTHCellReuseIdentifier];
+    [facesCollectionView registerClass:[THFacesCollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:kTHSupplementaryHeaderViewReuseIdentifier];
     facesCollectionView.backgroundColor = [UIColor whiteColor];
     facesCollectionView.contentInset = collectionViewInsets;
     facesCollectionView.delegate = self;
@@ -92,6 +103,7 @@ UIImagePickerControllerDelegate>
 
 - (void)dismissVC
 {
+    mainApp->setupCam([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.width);
     [self dismissViewControllerAnimated:YES completion:^{
         [MBProgressHUD hideHUDForView:self.view animated:YES];
     }];
@@ -131,14 +143,29 @@ UIImagePickerControllerDelegate>
         
         ofImage pickedImage;
         ofxiOSUIImageToOFImage(image, pickedImage);
-        pickedImage.setImageType(OF_IMAGE_COLOR);
         pickedImage.rotate90(1);
+        
+        NSInteger imageNumber;
+        if ( self.savedFaces.count <= 0 ) {
+            imageNumber = 0;
+        }
+        else {
+            imageNumber = self.savedFaces.count;
+        }
+        NSString *savedFaceName = [NSString stringWithFormat:@"%zd", imageNumber];
+        string cStringSavedFaceName = ofxNSStringToString(savedFaceName) + ".png";
+        // Save image to documents directory
+        pickedImage.saveImage(ofxiOSGetDocumentsDirectory() + cStringSavedFaceName);
+        [self.savedFaces addObject:ofxStringToNSString(cStringSavedFaceName)];
+        
+        pickedImage.setImageType(OF_IMAGE_COLOR); // set the type AFTER we save image to documents
         
         dispatch_async(dispatch_get_main_queue(), ^{
             
             mainApp->loadOFImage(pickedImage);
             mainApp->setupCam(self.view.frame.size.width, self.view.frame.size.height);
-            [self.facesCollectionView reloadData];
+            
+            [self.facesCollectionView reloadSections:[[NSIndexSet alloc] initWithIndex:1]];
             if ( completion ) {
                 completion();
             }
@@ -159,6 +186,12 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     return output;
 }
 
+- (UIImage *)imageFromDocumentsDirectoryNamed:(NSString *)name
+{
+    NSString *imagePath = [kTHDocumentsDirectoryPath stringByAppendingPathComponent:name];
+    return [UIImage imageWithContentsOfFile:imagePath];
+}
+
 #pragma mark - UIImagePickerController Delegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
@@ -169,7 +202,6 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
         [self loadFace:info[UIImagePickerControllerOriginalImage] withCompletion:^{
             [self dismissVC];
         }];
-
     }];
 }
 
@@ -186,7 +218,16 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     
     dispatch_async(dispatch_queue_create("imageLoadingQueue", NULL), ^{
         dispatch_async(dispatch_get_main_queue(), ^{
-            mainApp->loadFace(mainApp->faces.getPath(indexPath.row));
+            if ( indexPath.section == 0 ) {
+                mainApp->loadFace(mainApp->faces.getPath(indexPath.row));
+            }
+            else {
+                NSString *imageName = self.savedFaces[indexPath.row];
+                ofImage savedImage;
+                ofxiOSUIImageToOFImage([self imageFromDocumentsDirectoryNamed:imageName], savedImage);
+                mainApp->loadOFImage(savedImage);
+            }
+            
             [self dismissVC];
         });
     });
@@ -196,12 +237,31 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-    return 1;
+    return 2;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return mainApp->faces.size();
+    if ( section == 0 ) {
+        return mainApp->faces.size();
+    }
+    else {
+        return self.savedFaces.count;
+    }
+}
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
+{
+    THFacesCollectionReusableView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:kTHSupplementaryHeaderViewReuseIdentifier forIndexPath:indexPath];
+    
+    if ( indexPath.section == 0 ) {
+        headerView.title = @"Pre-Installed Faces";
+    }
+    else {
+        headerView.title = @"Saved Faces";
+    }
+    
+    return headerView;
 }
 
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -211,10 +271,17 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     cell.currentIndexPath = indexPath;
     [cell clearImage];
     [cell startLoading];
-    dispatch_async(dispatch_queue_create("cellImageQueue", NULL), ^{
-        ofImage preInstalledImage;
-        preInstalledImage.loadImage(mainApp->faces.getPath(indexPath.row));
-        UIImage *faceImage = uiimageFromOFImage(preInstalledImage);
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        UIImage *faceImage;
+        if ( indexPath.section == 0 ) {
+            ofImage preInstalledImage;
+            preInstalledImage.loadImage(mainApp->faces.getPath(indexPath.row));
+            faceImage = uiimageFromOFImage(preInstalledImage);
+        }
+        else {
+            NSString *currentImage = [NSString stringWithFormat:@"%zd", indexPath.row];
+            faceImage = [[UIImage imageWithContentsOfFile:[kTHDocumentsDirectoryPath stringByAppendingPathComponent:currentImage]] decodedImage];
+        }
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [cell setFaceWithImage:faceImage atIndexPath:indexPath];

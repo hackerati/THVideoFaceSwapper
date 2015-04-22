@@ -4,6 +4,7 @@ THPhotoPickerViewController *photoPicker;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    cout << ofxiOSGetUIWindow().bounds.size.width << " : " << ofxiOSGetUIWindow().bounds.size.height << endl;
     faces.allowExt("jpg");
     faces.allowExt("jpeg");
     faces.allowExt("png");
@@ -175,6 +176,10 @@ void ofApp::setupCam(int width, int height) {
     }
     
     cam.initGrabber(width, height);
+    
+    if ( !camTracker.isThreadRunning() ) {
+        camTracker.startThread();
+    }
 }
 
 void ofApp::dragEvent(ofDragInfo dragInfo) {
@@ -203,7 +208,10 @@ void ofApp::touchUp(ofTouchEventArgs & touch){
 //--------------------------------------------------------------
 void ofApp::touchDoubleTap(ofTouchEventArgs & touch){
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:photoPicker];
-    [ofxiOSGetViewController() presentViewController:navController animated:YES completion:nil];
+    [ofxiOSGetViewController() presentViewController:navController animated:YES completion:^{
+        cam.close();
+        camTracker.stopThread();
+    }];
 }
 
 //--------------------------------------------------------------
