@@ -14,7 +14,7 @@ This will exclude all of the openFramework Groups.
 
 #Other Notes
 ###Adding Faces
-Faces go into `bin/data/faces/` as a JPEG or PNG
+Faces go into `bin/data/faces/` as a JPG, JPEG or PNG
 
 ###Maydayfile
 Adds supplemental warnings and errors to your Xcode project via regex. For more info see [mayday](https://github.com/marklarr/mayday)

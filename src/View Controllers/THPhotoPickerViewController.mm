@@ -64,7 +64,7 @@ UIImagePickerControllerDelegate>
 - (void)setupCollectionView
 {
     const CGRect collectionViewFrame = CGRectMake(0.0f, 0.0f, self.view.frame.size.width, self.view.frame.size.height);
-    const UIEdgeInsets collectionViewInsets = UIEdgeInsetsMake(8.0f, 8.0f, 0.0f, 8.0f);
+    const UIEdgeInsets collectionViewInsets = UIEdgeInsetsMake(0.0f, 8.0f, 8.0f, 8.0f);
     const CGSize headerViewSize = CGSizeMake(self.view.frame.size.width, 30.0f);
     
     UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
@@ -252,16 +252,15 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
 
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
 {
-    NSLog(@"%zd", indexPath.section);
     THFacesCollectionReusableView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:kTHSupplementaryHeaderViewReuseIdentifier forIndexPath:indexPath];
     
-    headerView.title = nil;
     if ( indexPath.section == 0 ) {
-        headerView.title = @"Pre-Loaded Faces";
+        headerView.title = @"Pre-Installed Faces";
     }
     else {
         headerView.title = @"Saved Faces";
     }
+    
     return headerView;
 }
 
