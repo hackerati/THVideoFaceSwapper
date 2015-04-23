@@ -15,6 +15,8 @@
 
 #import "UIImage+Decode.h"
 
+static NSString * const kTHAlphanumericCharacters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
 static NSString *kTHCellReuseIdentifier = @"cell";
 static NSString *kTHSupplementaryHeaderViewReuseIdentifier = @"supplementaryHeaderView";
 static NSString *kTHDocumentsDirectoryPath = ofxStringToNSString(ofxiOSGetDocumentsDirectory());
@@ -72,7 +74,7 @@ UIImagePickerControllerDelegate>
     _deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0.0f, 0.0f, viewWidth, navBarHeight)];
     [_deleteButton addTarget:self action:@selector(deleteSelectedItems) forControlEvents:UIControlEventTouchUpInside];
     _deleteButton.backgroundColor = [UIColor colorWithRed:0.9f green:0.3f blue:0.26f alpha:1.0f];
-    [_deleteButton setTitle:@"Delete Items" forState:UIControlStateNormal];
+    [_deleteButton setTitle:@"Delete Item" forState:UIControlStateNormal];
     _deleteButton.transform = CGAffineTransformMakeTranslation(0.0f, -navBarHeight);
     _deleteButton.hidden = YES;
     [self.navigationController.navigationBar addSubview:_deleteButton];
@@ -169,15 +171,11 @@ UIImagePickerControllerDelegate>
         ofxiOSUIImageToOFImage(image, pickedImage);
         pickedImage.rotate90(1);
         
-        NSInteger imageNumber;
-        if ( self.savedFaces.count <= 0 ) {
-            imageNumber = 0;
+        NSString *newFileName = [self randomString];
+        while ( [self.savedFaces containsObject:newFileName] ) { // ensures that we'll never over write a previous image (highly unlikely anyways)
+            newFileName = [self randomString];
         }
-        else {
-            imageNumber = self.savedFaces.count;
-        }
-        NSString *savedFaceName = [NSString stringWithFormat:@"%zd", imageNumber];
-        string cStringSavedFaceName = ofxNSStringToString(savedFaceName) + ".png";
+        string cStringSavedFaceName = ofxNSStringToString(newFileName) + ".png";
         // Save image to documents directory
         pickedImage.saveImage(ofxiOSGetDocumentsDirectory() + cStringSavedFaceName);
         [self.savedFaces addObject:ofxStringToNSString(cStringSavedFaceName)];
@@ -190,6 +188,7 @@ UIImagePickerControllerDelegate>
             mainApp->setupCam(self.view.frame.size.width, self.view.frame.size.height);
             
             [self.facesCollectionView reloadSections:[[NSIndexSet alloc] initWithIndex:1]];
+            
             if ( completion ) {
                 completion();
             }
@@ -218,6 +217,7 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
 
 - (void)showDeleteButton:(BOOL)show
 {
+    [self.navigationController.navigationBar bringSubviewToFront:self.deleteButton];
     CGAffineTransform targetTransform;
     if ( show ) {
         self.deleteButton.hidden = !show;
@@ -232,10 +232,21 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
                          self.deleteButton.transform = targetTransform;
                      }
                      completion:^(BOOL finished){
-                         if ( finished ) {
-                             self.deleteButton.hidden = !show;
-                         }
+                         self.deleteButton.hidden = !show;
+                         NSLog(@"AFTER HIDDEN: %@", self.deleteButton.hidden ? @"YES" : @"NO");
+                         NSLog(@"AFTER FRAME: %@", NSStringFromCGRect(self.deleteButton.frame));
                      }];
+}
+
+- (NSString *)randomString {
+    const NSInteger alphanumericLettersCount = [kTHAlphanumericCharacters length];
+    
+    NSMutableString *randomString = [[NSMutableString alloc] init];
+    for (int i = 0; i < 10; i++) {
+        [randomString appendFormat: @"%C", [kTHAlphanumericCharacters characterAtIndex: arc4random_uniform(alphanumericLettersCount)]];
+    }
+    
+    return randomString;
 }
 
 #pragma mark - UIImagePickerController Delegate
@@ -244,7 +255,6 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
 {
     mainApp->cam.close();
     [picker dismissViewControllerAnimated:YES completion:^{
-        
         [self loadFace:info[UIImagePickerControllerOriginalImage] withCompletion:^{
             [self dismissVC];
         }];
@@ -318,6 +328,7 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     [cell clearImage];
     [cell startLoading];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
         UIImage *faceImage;
         if ( indexPath.section == 0 ) {
             ofImage preInstalledImage;
@@ -325,8 +336,8 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
             faceImage = uiimageFromOFImage(preInstalledImage);
         }
         else {
-            NSString *currentImage = [NSString stringWithFormat:@"%zd", indexPath.row];
-            faceImage = [[UIImage imageWithContentsOfFile:[kTHDocumentsDirectoryPath stringByAppendingPathComponent:currentImage]] decodedImage];
+            
+            faceImage = [[UIImage imageWithContentsOfFile:[kTHDocumentsDirectoryPath stringByAppendingPathComponent:[self.savedFaces objectAtIndex:indexPath.row]]] decodedImage];
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -362,12 +373,25 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
                             [self.indexPathsToDelete removeObject:pointIndexPath];
                         }
                     }
+                    NSLog(@"DELETE PATHS COUNT: %zd", self.indexPathsToDelete.count);
                     
                     if ( self.indexPathsToDelete.count > 0 ) {
-                        [self showDeleteButton:YES];
+                        
+                        if ( self.indexPathsToDelete.count > 1 ) {
+                            [self.deleteButton setTitle:@"Delete Items" forState:UIControlStateNormal];
+                        }
+                        else {
+                            [self.deleteButton setTitle:@"Delete Item" forState:UIControlStateNormal];
+                        }
+                        
+                        if ( self.deleteButton.isHidden ) {
+                            [self showDeleteButton:YES];
+                        }
                     }
                     else {
-                        [self showDeleteButton:NO];
+                        if ( !self.deleteButton.isHidden ) {
+                            [self showDeleteButton:NO];
+                        }
                     }
                 }
             }
@@ -386,7 +410,33 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
 
 - (void)deleteSelectedItems
 {
-    // TODO: Batch updates to delete items in collection view
+    [self.facesCollectionView performBatchUpdates:^{
+        
+        NSMutableArray *fileNamesToRemove = [NSMutableArray array];
+        NSError *err;
+        for (NSIndexPath *path in self.indexPathsToDelete) {
+            
+            [fileNamesToRemove addObject:[self.savedFaces objectAtIndex:path.row]];
+            NSString *fileToDelete = [kTHDocumentsDirectoryPath stringByAppendingPathComponent:[self.savedFaces objectAtIndex:path.row]];
+            
+            if ( ![[NSFileManager defaultManager] removeItemAtPath:fileToDelete error:&err] ) {
+                
+                UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:@"File Save Error"
+                                                                     message:err.localizedDescription
+                                                                    delegate:nil
+                                                           cancelButtonTitle:@"Ok"
+                                                           otherButtonTitles:nil, nil];
+                [errorAlert show];
+            }
+        }
+        
+        [self.savedFaces removeObjectsInArray:fileNamesToRemove];
+        [self.facesCollectionView deleteItemsAtIndexPaths:[self.indexPathsToDelete allObjects]];
+        
+    } completion:^(BOOL finished){
+        [self.indexPathsToDelete removeAllObjects];
+        [self showDeleteButton:NO];
+    }];
 }
 
 @end
