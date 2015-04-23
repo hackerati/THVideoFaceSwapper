@@ -82,6 +82,12 @@ UIImagePickerControllerDelegate>
     facesCollectionView.dataSource = self;
     [self.view addSubview:facesCollectionView];
     _facesCollectionView = facesCollectionView;
+    
+    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
+    longPress.minimumPressDuration = 1.0f;
+    longPress.numberOfTouchesRequired = 1;
+    longPress.delaysTouchesBegan = YES; // prevent didHighlightItemAtIndexPath from being called first
+    [_facesCollectionView addGestureRecognizer:longPress];
 }
 
 - (void)dealloc
@@ -290,6 +296,40 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     });
     
     return cell;
+}
+
+- (void)longPress:(UIGestureRecognizer *)gesture
+{
+    switch ( gesture.state ) {
+        case UIGestureRecognizerStateBegan: {
+            CGPoint gesturePoint = [gesture locationInView:self.facesCollectionView];
+            NSIndexPath *pointIndexPath = [self.facesCollectionView indexPathForItemAtPoint:gesturePoint];
+            
+            if ( pointIndexPath ) {
+                
+                if ( pointIndexPath.section == 1 ) { // should only be able to delete saved images taken via camera
+                    NSLog(@"Long Pressed!!");
+                    
+                    THFacePickerCollectionViewCell *selectedCell = (THFacePickerCollectionViewCell *)[self.facesCollectionView cellForItemAtIndexPath:pointIndexPath];
+                    [selectedCell highlightSelected:!selectedCell.highlightSelected];
+                    
+                    if ( selectedCell.highlightSelected ) {
+                        // TODO: Add to array of items to delete
+                    }
+                    else {
+                        // TODO: Remove from array of items to delete
+                    }
+                }
+            }
+            break;
+        }
+        case UIGestureRecognizerStateEnded:
+        case UIGestureRecognizerStateFailed:
+        case UIGestureRecognizerStateCancelled:
+        case UIGestureRecognizerStateChanged:
+        default:
+            break;
+    }
 }
 
 @end
