@@ -34,6 +34,8 @@ UIImagePickerControllerDelegate>
 
 @property (nonatomic) UICollectionView *facesCollectionView;
 @property (nonatomic) NSMutableArray *savedFaces;
+@property (nonatomic) NSMutableSet *indexPathsToDelete;
+@property (nonatomic) UIButton *deleteButton;
 
 @end
 
@@ -46,6 +48,7 @@ UIImagePickerControllerDelegate>
         mainApp = (ofApp *)ofGetAppPtr();
         
         _savedFaces = (NSMutableArray *)[[[NSFileManager defaultManager] contentsOfDirectoryAtPath:kTHDocumentsDirectoryPath error:nil] mutableCopy];
+        _indexPathsToDelete = [[NSMutableSet alloc] init];
 
         self.title = @"Face Selector";
     }
@@ -59,6 +62,20 @@ UIImagePickerControllerDelegate>
     
     UIBarButtonItem *cameraButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"camera"] style:UIBarButtonItemStylePlain target:self action:@selector(presentCameraPicker)];
     self.navigationItem.rightBarButtonItem = cameraButton;
+}
+
+- (void)setupDeleteButton
+{
+    const CGFloat viewWidth = self.view.frame.size.width;
+    const CGFloat navBarHeight = self.navigationController.navigationBar.frame.size.height;
+    
+    _deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0.0f, 0.0f, viewWidth, navBarHeight)];
+    [_deleteButton addTarget:self action:@selector(deleteSelectedItems) forControlEvents:UIControlEventTouchUpInside];
+    _deleteButton.backgroundColor = [UIColor colorWithRed:0.9f green:0.3f blue:0.26f alpha:1.0f];
+    [_deleteButton setTitle:@"Delete Items" forState:UIControlStateNormal];
+    _deleteButton.transform = CGAffineTransformMakeTranslation(0.0f, -navBarHeight);
+    _deleteButton.hidden = YES;
+    [self.navigationController.navigationBar addSubview:_deleteButton];
 }
 
 - (void)setupCollectionView
@@ -84,7 +101,7 @@ UIImagePickerControllerDelegate>
     _facesCollectionView = facesCollectionView;
     
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
-    longPress.minimumPressDuration = 1.0f;
+    longPress.minimumPressDuration = 0.5f;
     longPress.numberOfTouchesRequired = 1;
     longPress.delaysTouchesBegan = YES; // prevent didHighlightItemAtIndexPath from being called first
     [_facesCollectionView addGestureRecognizer:longPress];
@@ -103,6 +120,7 @@ UIImagePickerControllerDelegate>
     
     [self setupMenuButtons];
     [self setupCollectionView];
+    [self setupDeleteButton];
 }
 
 #pragma mark - Private
@@ -196,6 +214,28 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
 {
     NSString *imagePath = [kTHDocumentsDirectoryPath stringByAppendingPathComponent:name];
     return [UIImage imageWithContentsOfFile:imagePath];
+}
+
+- (void)showDeleteButton:(BOOL)show
+{
+    CGAffineTransform targetTransform;
+    if ( show ) {
+        self.deleteButton.hidden = !show;
+        targetTransform = CGAffineTransformIdentity;
+    }
+    else {
+        targetTransform = CGAffineTransformMakeTranslation(0.0f, -self.navigationController.navigationBar.frame.size.height);
+    }
+    
+    [UIView animateWithDuration:0.1f
+                     animations:^{
+                         self.deleteButton.transform = targetTransform;
+                     }
+                     completion:^(BOOL finished){
+                         if ( finished ) {
+                             self.deleteButton.hidden = !show;
+                         }
+                     }];
 }
 
 #pragma mark - UIImagePickerController Delegate
@@ -298,6 +338,8 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     return cell;
 }
 
+#pragma mark - UIGestureRecognizer Selectors
+
 - (void)longPress:(UIGestureRecognizer *)gesture
 {
     switch ( gesture.state ) {
@@ -308,16 +350,24 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
             if ( pointIndexPath ) {
                 
                 if ( pointIndexPath.section == 1 ) { // should only be able to delete saved images taken via camera
-                    NSLog(@"Long Pressed!!");
                     
                     THFacePickerCollectionViewCell *selectedCell = (THFacePickerCollectionViewCell *)[self.facesCollectionView cellForItemAtIndexPath:pointIndexPath];
                     [selectedCell highlightSelected:!selectedCell.highlightSelected];
                     
                     if ( selectedCell.highlightSelected ) {
-                        // TODO: Add to array of items to delete
+                        [self.indexPathsToDelete addObject:pointIndexPath];
                     }
                     else {
-                        // TODO: Remove from array of items to delete
+                        if ( [self.indexPathsToDelete containsObject:pointIndexPath] ) {
+                            [self.indexPathsToDelete removeObject:pointIndexPath];
+                        }
+                    }
+                    
+                    if ( self.indexPathsToDelete.count > 0 ) {
+                        [self showDeleteButton:YES];
+                    }
+                    else {
+                        [self showDeleteButton:NO];
                     }
                 }
             }
@@ -330,6 +380,13 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
         default:
             break;
     }
+}
+
+#pragma mark - UIButton Selectors
+
+- (void)deleteSelectedItems
+{
+    // TODO: Batch updates to delete items in collection view
 }
 
 @end
