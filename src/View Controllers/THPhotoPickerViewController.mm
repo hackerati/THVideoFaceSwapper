@@ -214,19 +214,6 @@ UIImagePickerControllerDelegate>
     });
 }
 
-UIImage * uiimageFromOFImage(ofImage inputImage)
-{
-    int width = inputImage.width;
-    int height = inputImage.height;
-    float pixelForChannel = 3;
-    CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, inputImage.getPixels(), width*height*pixelForChannel, NULL);
-    CGImageRef imageRef = CGImageCreate(width, height, 8, 24, pixelForChannel*width, CGColorSpaceCreateDeviceRGB(), kCGBitmapByteOrderDefault, provider, NULL, NO, kCGRenderingIntentDefault);
-    UIImage *pngImge = [UIImage imageWithCGImage:imageRef];
-    NSData *imageData = UIImagePNGRepresentation(pngImge);
-    UIImage *output = [UIImage imageWithData:imageData];
-    return output;
-}
-
 - (UIImage *)imageFromDocumentsDirectoryNamed:(NSString *)name
 {
     NSString *imagePath = [kTHDocumentsDirectoryPath stringByAppendingPathComponent:name];
@@ -272,6 +259,35 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     }
     
     [self.indexPathsToDelete removeAllObjects];
+}
+
+UIImage * uiimageFromOFImage(ofImage inputImage)
+{
+    int width = inputImage.width;
+    int height = inputImage.height;
+    float pixelForChannel = 3;
+    CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, inputImage.getPixels(), width*height*pixelForChannel, NULL);
+    CGImageRef imageRef = CGImageCreate(width, height, 8, 24, pixelForChannel*width, CGColorSpaceCreateDeviceRGB(), kCGBitmapByteOrderDefault, provider, NULL, NO, kCGRenderingIntentDefault);
+    UIImage *pngImge = [UIImage imageWithCGImage:imageRef];
+    NSData *imageData = UIImagePNGRepresentation(pngImge);
+    UIImage *output = [UIImage imageWithData:imageData];
+    return output;
+}
+
+#pragma mark - UIAlertView Delegate
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+    BOOL save = NO;
+    if ( buttonIndex == 1 ) {
+        save = YES;
+    }
+    
+    [self.navigationController dismissViewControllerAnimated:YES completion:^{
+        [self loadFace:self.takenPhoto saveImage:save withCompletion:^{
+            [self dismissVC];
+        }];
+    }];
 }
 
 #pragma mark - UIImagePickerController Delegate
@@ -375,22 +391,6 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     });
     
     return cell;
-}
-
-#pragma mark - UIAlertView Delegate
-
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-    BOOL save = NO;
-    if ( buttonIndex == 1 ) {
-        save = YES;
-    }
-    
-    [self.navigationController dismissViewControllerAnimated:YES completion:^{
-        [self loadFace:self.takenPhoto saveImage:save withCompletion:^{
-            [self dismissVC];
-        }];
-    }];
 }
 
 #pragma mark - UIGestureRecognizer Selectors
