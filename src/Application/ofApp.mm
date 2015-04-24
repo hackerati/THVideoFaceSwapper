@@ -167,19 +167,17 @@ void ofApp::loadOFImage(ofImage input) {
 
 void ofApp::setupCam(int width, int height) {
     
-//    if ( !cam.isInitialized() ) {
+    cam.setDesiredFrameRate(24);
     
-        cam.setDesiredFrameRate(24);
-        
-        if ( cam.listDevices().size() > 1 ) {
-            cam.setDeviceID(1); // front facing camera
-        }
-        else {
-            cam.setDeviceID(0); // rear facing camera
-        }
-        
-        cam.initGrabber(width, height);
-//    }
+    if ( cam.listDevices().size() > 1 ) {
+        cam.setDeviceID(1); // front facing camera
+    }
+    else {
+        cam.setDeviceID(0); // rear facing camera
+    }
+    
+    cam.initGrabber(width, height);
+
     
     if ( !camTracker.isThreadRunning() ) {
         camTracker.startThread();

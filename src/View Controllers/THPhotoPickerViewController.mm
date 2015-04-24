@@ -15,15 +15,22 @@
 
 #import "UIImage+Decode.h"
 
-static NSString * const kTHAlphanumericCharacters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
 static NSString *kTHCellReuseIdentifier = @"cell";
 static NSString *kTHSupplementaryHeaderViewReuseIdentifier = @"supplementaryHeaderView";
-static NSString *kTHDocumentsDirectoryPath = ofxStringToNSString(ofxiOSGetDocumentsDirectory());
-static NSArray *kTHLoadingDetails = @[@"You're gonna look great!", @"Ooo how handsome", @"Your alias is on the way!", @"Better than Mrs. Doubtfire"];
+
+static NSString * const kTHDocumentsDirectoryPath = ofxStringToNSString(ofxiOSGetDocumentsDirectory());
+static NSString * const kTHAlphanumericCharacters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+static NSString * const kTHFacePickerViewControllerTitle = @"Face Selector";
+static NSString * const kTHDeleteButtonSingleItemTitle = @"Delete Item";
+static NSString * const kTHDeleteButtonMultiItemTitle = @"Delete Items";
+static NSString * const kTHPreInstalledFacesHeaderTitle = @"Pre-Installed Faces";
+static NSString * const kTHSavedFacesHeaderTitle = @"Saved Faces";
+
+static NSArray * const kTHLoadingDetails = @[@"You're gonna look great!", @"Ooo how handsome", @"Your alias is on the way!", @"Better than Mrs. Doubtfire"];
 
 static const CGSize kTHCellSize = (CGSize){100.0f, 100.0f};
 static const CGFloat kTHItemSpacing = 2.0f;
+static const UIEdgeInsets kTHCollectionViewEdgeInsets = (UIEdgeInsets){0.0f, 8.0f, 8.0f, 8.0f};
 
 @interface THPhotoPickerViewController ()
 <UIAlertViewDelegate,
@@ -54,7 +61,7 @@ UIImagePickerControllerDelegate>
         _savedFaces = (NSMutableArray *)[[[NSFileManager defaultManager] contentsOfDirectoryAtPath:kTHDocumentsDirectoryPath error:nil] mutableCopy];
         _indexPathsToDelete = [[NSMutableSet alloc] init];
         
-        self.title = @"Face Selector";
+        self.title = kTHFacePickerViewControllerTitle;
     }
     return self;
 }
@@ -70,22 +77,20 @@ UIImagePickerControllerDelegate>
 
 - (void)setupDeleteButton
 {
-    const CGFloat viewWidth = self.view.frame.size.width;
     const CGFloat navBarHeight = self.navigationController.navigationBar.frame.size.height;
     
-    _deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0.0f, 0.0f, viewWidth, navBarHeight)];
+    _deleteButton = [[UIButton alloc] initWithFrame:self.navigationController.navigationBar.frame];
     [_deleteButton addTarget:self action:@selector(deleteSelectedItems) forControlEvents:UIControlEventTouchUpInside];
     _deleteButton.backgroundColor = [UIColor colorWithRed:0.9f green:0.3f blue:0.26f alpha:1.0f];
-    [_deleteButton setTitle:@"Delete Item" forState:UIControlStateNormal];
     _deleteButton.transform = CGAffineTransformMakeTranslation(0.0f, -navBarHeight);
     _deleteButton.hidden = YES;
+    _deleteButton.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.navigationController.navigationBar addSubview:_deleteButton];
 }
 
 - (void)setupCollectionView
 {
     const CGRect collectionViewFrame = CGRectMake(0.0f, 0.0f, self.view.frame.size.width, self.view.frame.size.height);
-    const UIEdgeInsets collectionViewInsets = UIEdgeInsetsMake(0.0f, 8.0f, 8.0f, 8.0f);
     const CGSize headerViewSize = CGSizeMake(self.view.frame.size.width, 30.0f);
     
     UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
@@ -94,15 +99,15 @@ UIImagePickerControllerDelegate>
     flowLayout.minimumInteritemSpacing = kTHItemSpacing;
     flowLayout.minimumLineSpacing = kTHItemSpacing;
     
-    UICollectionView *facesCollectionView = [[UICollectionView alloc] initWithFrame:collectionViewFrame collectionViewLayout:flowLayout];
-    [facesCollectionView registerClass:[THFacePickerCollectionViewCell class] forCellWithReuseIdentifier:kTHCellReuseIdentifier];
-    [facesCollectionView registerClass:[THFacesCollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:kTHSupplementaryHeaderViewReuseIdentifier];
-    facesCollectionView.backgroundColor = [UIColor whiteColor];
-    facesCollectionView.contentInset = collectionViewInsets;
-    facesCollectionView.delegate = self;
-    facesCollectionView.dataSource = self;
-    [self.view addSubview:facesCollectionView];
-    _facesCollectionView = facesCollectionView;
+    _facesCollectionView = [[UICollectionView alloc] initWithFrame:collectionViewFrame collectionViewLayout:flowLayout];
+    [_facesCollectionView registerClass:[THFacePickerCollectionViewCell class] forCellWithReuseIdentifier:kTHCellReuseIdentifier];
+    [_facesCollectionView registerClass:[THFacesCollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:kTHSupplementaryHeaderViewReuseIdentifier];
+    _facesCollectionView.backgroundColor = [UIColor whiteColor];
+    _facesCollectionView.contentInset = kTHCollectionViewEdgeInsets;
+    _facesCollectionView.delegate = self;
+    _facesCollectionView.dataSource = self;
+    _facesCollectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [self.view addSubview:_facesCollectionView];
     
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
     longPress.minimumPressDuration = 0.5f;
@@ -114,6 +119,7 @@ UIImagePickerControllerDelegate>
 - (void)dealloc
 {
     _facesCollectionView = nil;
+    mainApp = NULL;
     [super dealloc];
 }
 
@@ -129,7 +135,7 @@ UIImagePickerControllerDelegate>
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    [self setupDeleteButton];
+    [self setupDeleteButton]; // prevents bug where button doesn't appear after taking a photo and trying to delete a saved photo
 }
 
 #pragma mark - Private
@@ -208,19 +214,6 @@ UIImagePickerControllerDelegate>
     });
 }
 
-UIImage * uiimageFromOFImage(ofImage inputImage)
-{
-    int width = inputImage.width;
-    int height = inputImage.height;
-    float pixelForChannel = 3;
-    CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, inputImage.getPixels(), width*height*pixelForChannel, NULL);
-    CGImageRef imageRef = CGImageCreate(width, height, 8, 24, pixelForChannel*width, CGColorSpaceCreateDeviceRGB(), kCGBitmapByteOrderDefault, provider, NULL, NO, kCGRenderingIntentDefault);
-    UIImage *pngImge = [UIImage imageWithCGImage:imageRef];
-    NSData *imageData = UIImagePNGRepresentation(pngImge);
-    UIImage *output = [UIImage imageWithData:imageData];
-    return output;
-}
-
 - (UIImage *)imageFromDocumentsDirectoryNamed:(NSString *)name
 {
     NSString *imagePath = [kTHDocumentsDirectoryPath stringByAppendingPathComponent:name];
@@ -266,6 +259,35 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     }
     
     [self.indexPathsToDelete removeAllObjects];
+}
+
+UIImage * uiimageFromOFImage(ofImage inputImage)
+{
+    int width = inputImage.width;
+    int height = inputImage.height;
+    float pixelForChannel = 3;
+    CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, inputImage.getPixels(), width*height*pixelForChannel, NULL);
+    CGImageRef imageRef = CGImageCreate(width, height, 8, 24, pixelForChannel*width, CGColorSpaceCreateDeviceRGB(), kCGBitmapByteOrderDefault, provider, NULL, NO, kCGRenderingIntentDefault);
+    UIImage *pngImge = [UIImage imageWithCGImage:imageRef];
+    NSData *imageData = UIImagePNGRepresentation(pngImge);
+    UIImage *output = [UIImage imageWithData:imageData];
+    return output;
+}
+
+#pragma mark - UIAlertView Delegate
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+    BOOL save = NO;
+    if ( buttonIndex == 1 ) {
+        save = YES;
+    }
+    
+    [self.navigationController dismissViewControllerAnimated:YES completion:^{
+        [self loadFace:self.takenPhoto saveImage:save withCompletion:^{
+            [self dismissVC];
+        }];
+    }];
 }
 
 #pragma mark - UIImagePickerController Delegate
@@ -333,10 +355,10 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     THFacesCollectionReusableView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:kTHSupplementaryHeaderViewReuseIdentifier forIndexPath:indexPath];
     
     if ( indexPath.section == 0 ) {
-        headerView.title = @"Pre-Installed Faces";
+        headerView.title = kTHPreInstalledFacesHeaderTitle;
     }
     else {
-        headerView.title = @"Saved Faces";
+        headerView.title = kTHSavedFacesHeaderTitle;
     }
     
     return headerView;
@@ -371,22 +393,6 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     return cell;
 }
 
-#pragma mark - UIAlertView Delegate
-
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-    BOOL save = NO;
-    if ( buttonIndex == 1 ) {
-        save = YES;
-    }
-    
-    [self.navigationController dismissViewControllerAnimated:YES completion:^{
-        [self loadFace:self.takenPhoto saveImage:save withCompletion:^{
-            [self dismissVC];
-        }];
-    }];
-}
-
 #pragma mark - UIGestureRecognizer Selectors
 
 - (void)longPress:(UIGestureRecognizer *)gesture
@@ -415,10 +421,10 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
                     if ( self.indexPathsToDelete.count > 0 ) {
                         
                         if ( self.indexPathsToDelete.count > 1 ) {
-                            [self.deleteButton setTitle:@"Delete Items" forState:UIControlStateNormal];
+                            [self.deleteButton setTitle:kTHDeleteButtonMultiItemTitle forState:UIControlStateNormal];
                         }
                         else {
-                            [self.deleteButton setTitle:@"Delete Item" forState:UIControlStateNormal];
+                            [self.deleteButton setTitle:kTHDeleteButtonSingleItemTitle forState:UIControlStateNormal];
                         }
                         
                         if ( self.deleteButton.isHidden ) {
