@@ -429,6 +429,9 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
         NSError *err;
         for (NSIndexPath *path in self.indexPathsToDelete) {
             
+            THFacePickerCollectionViewCell *cell = (THFacePickerCollectionViewCell *)[self.facesCollectionView cellForItemAtIndexPath:path];
+            [cell highlightSelected:NO];
+            
             [fileNamesToRemove addObject:[self.savedFaces objectAtIndex:path.row]];
             NSString *fileToDelete = [kTHDocumentsDirectoryPath stringByAppendingPathComponent:[self.savedFaces objectAtIndex:path.row]];
             
