@@ -26,7 +26,8 @@ static const CGSize kTHCellSize = (CGSize){100.0f, 100.0f};
 static const CGFloat kTHItemSpacing = 2.0f;
 
 @interface THPhotoPickerViewController ()
-<UICollectionViewDataSource,
+<UIAlertViewDelegate,
+UICollectionViewDataSource,
 UICollectionViewDelegate,
 UINavigationControllerDelegate,
 UIImagePickerControllerDelegate>
@@ -38,6 +39,7 @@ UIImagePickerControllerDelegate>
 @property (nonatomic) NSMutableArray *savedFaces;
 @property (nonatomic) NSMutableSet *indexPathsToDelete;
 @property (nonatomic) UIButton *deleteButton;
+@property (nonatomic) UIImage *takenPhoto;
 
 @end
 
@@ -51,7 +53,7 @@ UIImagePickerControllerDelegate>
         
         _savedFaces = (NSMutableArray *)[[[NSFileManager defaultManager] contentsOfDirectoryAtPath:kTHDocumentsDirectoryPath error:nil] mutableCopy];
         _indexPathsToDelete = [[NSMutableSet alloc] init];
-
+        
         self.title = @"Face Selector";
     }
     return self;
@@ -137,7 +139,7 @@ UIImagePickerControllerDelegate>
     [self resetCellStates];
     
     mainApp->setupCam([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.width);
-    [self dismissViewControllerAnimated:YES completion:^{
+    [self.navigationController dismissViewControllerAnimated:YES completion:^{
         [MBProgressHUD hideHUDForView:self.view animated:YES];
     }];
 }
@@ -149,7 +151,7 @@ UIImagePickerControllerDelegate>
     imagePicker.allowsEditing = NO;
     imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
     
-    [self presentViewController:imagePicker animated:YES completion:nil];
+    [self.navigationController presentViewController:imagePicker animated:YES completion:nil];
 }
 
 - (NSString *)randomLoadingDetail
@@ -168,7 +170,7 @@ UIImagePickerControllerDelegate>
     hud.detailsLabelText = [self randomLoadingDetail];
 }
 
-- (void)loadFace:(UIImage *)image withCompletion:(void (^)(void))completion
+- (void)loadFace:(UIImage *)image saveImage:(BOOL)save withCompletion:(void (^)(void))completion
 {
     [self showLoadingHUD];
     
@@ -178,14 +180,16 @@ UIImagePickerControllerDelegate>
         ofxiOSUIImageToOFImage(image, pickedImage);
         pickedImage.rotate90(1);
         
-        NSString *newFileName = [self randomString];
-        while ( [self.savedFaces containsObject:newFileName] ) { // ensures that we'll never over write a previous image (highly unlikely anyways)
-            newFileName = [self randomString];
+        if ( save ) {
+            NSString *newFileName = [self randomString];
+            while ( [self.savedFaces containsObject:newFileName] ) { // ensures that we'll never over write a previous image (highly unlikely anyways)
+                newFileName = [self randomString];
+            }
+            string cStringSavedFaceName = ofxNSStringToString(newFileName) + ".png";
+            // Save image to documents directory
+            pickedImage.saveImage(ofxiOSGetDocumentsDirectory() + cStringSavedFaceName);
+            [self.savedFaces addObject:ofxStringToNSString(cStringSavedFaceName)];
         }
-        string cStringSavedFaceName = ofxNSStringToString(newFileName) + ".png";
-        // Save image to documents directory
-        pickedImage.saveImage(ofxiOSGetDocumentsDirectory() + cStringSavedFaceName);
-        [self.savedFaces addObject:ofxStringToNSString(cStringSavedFaceName)];
         
         pickedImage.setImageType(OF_IMAGE_COLOR); // set the type AFTER we save image to documents
         
@@ -195,6 +199,7 @@ UIImagePickerControllerDelegate>
             mainApp->setupCam(self.view.frame.size.width, self.view.frame.size.height);
             
             [self.facesCollectionView reloadSections:[[NSIndexSet alloc] initWithIndex:1]];
+            self.takenPhoto = nil; // manual release
             
             if ( completion ) {
                 completion();
@@ -267,12 +272,15 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
+    self.takenPhoto = (UIImage *)[info[UIImagePickerControllerOriginalImage] copy]; // need to copy or else you'll try to load the reference to the image which will be deallocated outside of this scope
+    
     mainApp->cam.close();
-    [picker dismissViewControllerAnimated:YES completion:^{
-        [self loadFace:info[UIImagePickerControllerOriginalImage] withCompletion:^{
-            [self dismissVC];
-        }];
-    }];
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Save Photo For Later?"
+                                                        message:@"Saving will allow you to use this face later on"
+                                                       delegate:self
+                                              cancelButtonTitle:@"No Thanks"
+                                              otherButtonTitles:@"Right On!", nil];
+    [alertView show];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
@@ -361,6 +369,22 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     });
     
     return cell;
+}
+
+#pragma mark - UIAlertView Delegate
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+    BOOL save = NO;
+    if ( buttonIndex == 1 ) {
+        save = YES;
+    }
+    
+    [self.navigationController dismissViewControllerAnimated:YES completion:^{
+        [self loadFace:self.takenPhoto saveImage:save withCompletion:^{
+            [self dismissVC];
+        }];
+    }];
 }
 
 #pragma mark - UIGestureRecognizer Selectors
