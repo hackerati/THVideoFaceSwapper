@@ -15,6 +15,8 @@
 
 #import "UIImage+Decode.h"
 
+static NSString * const kTHAlphanumericCharacters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
 static NSString *kTHCellReuseIdentifier = @"cell";
 static NSString *kTHSupplementaryHeaderViewReuseIdentifier = @"supplementaryHeaderView";
 static NSString *kTHDocumentsDirectoryPath = ofxStringToNSString(ofxiOSGetDocumentsDirectory());
@@ -34,6 +36,8 @@ UIImagePickerControllerDelegate>
 
 @property (nonatomic) UICollectionView *facesCollectionView;
 @property (nonatomic) NSMutableArray *savedFaces;
+@property (nonatomic) NSMutableSet *indexPathsToDelete;
+@property (nonatomic) UIButton *deleteButton;
 
 @end
 
@@ -46,6 +50,7 @@ UIImagePickerControllerDelegate>
         mainApp = (ofApp *)ofGetAppPtr();
         
         _savedFaces = (NSMutableArray *)[[[NSFileManager defaultManager] contentsOfDirectoryAtPath:kTHDocumentsDirectoryPath error:nil] mutableCopy];
+        _indexPathsToDelete = [[NSMutableSet alloc] init];
 
         self.title = @"Face Selector";
     }
@@ -59,6 +64,20 @@ UIImagePickerControllerDelegate>
     
     UIBarButtonItem *cameraButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"camera"] style:UIBarButtonItemStylePlain target:self action:@selector(presentCameraPicker)];
     self.navigationItem.rightBarButtonItem = cameraButton;
+}
+
+- (void)setupDeleteButton
+{
+    const CGFloat viewWidth = self.view.frame.size.width;
+    const CGFloat navBarHeight = self.navigationController.navigationBar.frame.size.height;
+    
+    _deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0.0f, 0.0f, viewWidth, navBarHeight)];
+    [_deleteButton addTarget:self action:@selector(deleteSelectedItems) forControlEvents:UIControlEventTouchUpInside];
+    _deleteButton.backgroundColor = [UIColor colorWithRed:0.9f green:0.3f blue:0.26f alpha:1.0f];
+    [_deleteButton setTitle:@"Delete Item" forState:UIControlStateNormal];
+    _deleteButton.transform = CGAffineTransformMakeTranslation(0.0f, -navBarHeight);
+    _deleteButton.hidden = YES;
+    [self.navigationController.navigationBar addSubview:_deleteButton];
 }
 
 - (void)setupCollectionView
@@ -82,6 +101,12 @@ UIImagePickerControllerDelegate>
     facesCollectionView.dataSource = self;
     [self.view addSubview:facesCollectionView];
     _facesCollectionView = facesCollectionView;
+    
+    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
+    longPress.minimumPressDuration = 0.5f;
+    longPress.numberOfTouchesRequired = 1;
+    longPress.delaysTouchesBegan = YES; // prevent didHighlightItemAtIndexPath from being called first
+    [_facesCollectionView addGestureRecognizer:longPress];
 }
 
 - (void)dealloc
@@ -99,10 +124,18 @@ UIImagePickerControllerDelegate>
     [self setupCollectionView];
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [self setupDeleteButton];
+}
+
 #pragma mark - Private
 
 - (void)dismissVC
 {
+    [self resetCellStates];
+    
     mainApp->setupCam([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.width);
     [self dismissViewControllerAnimated:YES completion:^{
         [MBProgressHUD hideHUDForView:self.view animated:YES];
@@ -145,15 +178,11 @@ UIImagePickerControllerDelegate>
         ofxiOSUIImageToOFImage(image, pickedImage);
         pickedImage.rotate90(1);
         
-        NSInteger imageNumber;
-        if ( self.savedFaces.count <= 0 ) {
-            imageNumber = 0;
+        NSString *newFileName = [self randomString];
+        while ( [self.savedFaces containsObject:newFileName] ) { // ensures that we'll never over write a previous image (highly unlikely anyways)
+            newFileName = [self randomString];
         }
-        else {
-            imageNumber = self.savedFaces.count;
-        }
-        NSString *savedFaceName = [NSString stringWithFormat:@"%zd", imageNumber];
-        string cStringSavedFaceName = ofxNSStringToString(savedFaceName) + ".png";
+        string cStringSavedFaceName = ofxNSStringToString(newFileName) + ".png";
         // Save image to documents directory
         pickedImage.saveImage(ofxiOSGetDocumentsDirectory() + cStringSavedFaceName);
         [self.savedFaces addObject:ofxStringToNSString(cStringSavedFaceName)];
@@ -166,6 +195,7 @@ UIImagePickerControllerDelegate>
             mainApp->setupCam(self.view.frame.size.width, self.view.frame.size.height);
             
             [self.facesCollectionView reloadSections:[[NSIndexSet alloc] initWithIndex:1]];
+            
             if ( completion ) {
                 completion();
             }
@@ -192,13 +222,53 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     return [UIImage imageWithContentsOfFile:imagePath];
 }
 
+- (void)showDeleteButton:(BOOL)show
+{
+    CGAffineTransform targetTransform;
+    if ( show ) {
+        [self.deleteButton setHidden:!show];
+        targetTransform = CGAffineTransformMakeTranslation(0.0f, 0.0f);
+    }
+    else {
+        targetTransform = CGAffineTransformMakeTranslation(0.0f, -self.navigationController.navigationBar.frame.size.height);
+    }
+    
+    [UIView animateWithDuration:0.1f
+                     animations:^{
+                         self.deleteButton.transform = targetTransform;
+                     }
+                     completion:^(BOOL finished){
+                         [self.deleteButton setHidden:!show];
+                     }];
+}
+
+- (NSString *)randomString {
+    const NSInteger alphanumericLettersCount = [kTHAlphanumericCharacters length];
+    
+    NSMutableString *randomString = [[NSMutableString alloc] init];
+    for (int i = 0; i < 10; i++) {
+        [randomString appendFormat: @"%C", [kTHAlphanumericCharacters characterAtIndex: arc4random_uniform(alphanumericLettersCount)]];
+    }
+    
+    return randomString;
+}
+
+- (void)resetCellStates
+{
+    for (NSIndexPath *path in self.indexPathsToDelete) {
+        THFacePickerCollectionViewCell *cell = (THFacePickerCollectionViewCell *)[self.facesCollectionView cellForItemAtIndexPath:path];
+        [cell highlightSelected:NO];
+    }
+    
+    [self.indexPathsToDelete removeAllObjects];
+}
+
 #pragma mark - UIImagePickerController Delegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
     mainApp->cam.close();
     [picker dismissViewControllerAnimated:YES completion:^{
-        
         [self loadFace:info[UIImagePickerControllerOriginalImage] withCompletion:^{
             [self dismissVC];
         }];
@@ -272,6 +342,7 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     [cell clearImage];
     [cell startLoading];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
         UIImage *faceImage;
         if ( indexPath.section == 0 ) {
             ofImage preInstalledImage;
@@ -279,8 +350,8 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
             faceImage = uiimageFromOFImage(preInstalledImage);
         }
         else {
-            NSString *currentImage = [NSString stringWithFormat:@"%zd", indexPath.row];
-            faceImage = [[UIImage imageWithContentsOfFile:[kTHDocumentsDirectoryPath stringByAppendingPathComponent:currentImage]] decodedImage];
+            
+            faceImage = [[UIImage imageWithContentsOfFile:[kTHDocumentsDirectoryPath stringByAppendingPathComponent:[self.savedFaces objectAtIndex:indexPath.row]]] decodedImage];
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -290,6 +361,98 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     });
     
     return cell;
+}
+
+#pragma mark - UIGestureRecognizer Selectors
+
+- (void)longPress:(UIGestureRecognizer *)gesture
+{
+    switch ( gesture.state ) {
+        case UIGestureRecognizerStateBegan: {
+            CGPoint gesturePoint = [gesture locationInView:self.facesCollectionView];
+            NSIndexPath *pointIndexPath = [self.facesCollectionView indexPathForItemAtPoint:gesturePoint];
+            
+            if ( pointIndexPath ) {
+                
+                if ( pointIndexPath.section == 1 ) { // should only be able to delete saved images taken via camera
+                    
+                    THFacePickerCollectionViewCell *selectedCell = (THFacePickerCollectionViewCell *)[self.facesCollectionView cellForItemAtIndexPath:pointIndexPath];
+                    [selectedCell highlightSelected:!selectedCell.highlightSelected];
+                    
+                    if ( selectedCell.highlightSelected ) {
+                        [self.indexPathsToDelete addObject:pointIndexPath];
+                    }
+                    else {
+                        if ( [self.indexPathsToDelete containsObject:pointIndexPath] ) {
+                            [self.indexPathsToDelete removeObject:pointIndexPath];
+                        }
+                    }
+                    
+                    if ( self.indexPathsToDelete.count > 0 ) {
+                        
+                        if ( self.indexPathsToDelete.count > 1 ) {
+                            [self.deleteButton setTitle:@"Delete Items" forState:UIControlStateNormal];
+                        }
+                        else {
+                            [self.deleteButton setTitle:@"Delete Item" forState:UIControlStateNormal];
+                        }
+                        
+                        if ( self.deleteButton.isHidden ) {
+                            [self showDeleteButton:YES];
+                        }
+                    }
+                    else {
+                        if ( !self.deleteButton.isHidden ) {
+                            [self showDeleteButton:NO];
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        case UIGestureRecognizerStateEnded:
+        case UIGestureRecognizerStateFailed:
+        case UIGestureRecognizerStateCancelled:
+        case UIGestureRecognizerStateChanged:
+        default:
+            break;
+    }
+}
+
+#pragma mark - UIButton Selectors
+
+- (void)deleteSelectedItems
+{
+    [self.facesCollectionView performBatchUpdates:^{
+        
+        NSMutableArray *fileNamesToRemove = [NSMutableArray array];
+        NSError *err;
+        for (NSIndexPath *path in self.indexPathsToDelete) {
+            
+            THFacePickerCollectionViewCell *cell = (THFacePickerCollectionViewCell *)[self.facesCollectionView cellForItemAtIndexPath:path];
+            [cell highlightSelected:NO];
+            
+            [fileNamesToRemove addObject:[self.savedFaces objectAtIndex:path.row]];
+            NSString *fileToDelete = [kTHDocumentsDirectoryPath stringByAppendingPathComponent:[self.savedFaces objectAtIndex:path.row]];
+            
+            if ( ![[NSFileManager defaultManager] removeItemAtPath:fileToDelete error:&err] ) {
+                
+                UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:@"File Save Error"
+                                                                     message:err.localizedDescription
+                                                                    delegate:nil
+                                                           cancelButtonTitle:@"Ok"
+                                                           otherButtonTitles:nil, nil];
+                [errorAlert show];
+            }
+        }
+        
+        [self.savedFaces removeObjectsInArray:fileNamesToRemove];
+        [self.facesCollectionView deleteItemsAtIndexPaths:[self.indexPathsToDelete allObjects]];
+        
+    } completion:^(BOOL finished){
+        [self.indexPathsToDelete removeAllObjects];
+        [self showDeleteButton:NO];
+    }];
 }
 
 @end
