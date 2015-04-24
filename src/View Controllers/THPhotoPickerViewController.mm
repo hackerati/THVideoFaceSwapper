@@ -122,6 +122,11 @@ UIImagePickerControllerDelegate>
     
     [self setupMenuButtons];
     [self setupCollectionView];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
     [self setupDeleteButton];
 }
 
@@ -129,6 +134,8 @@ UIImagePickerControllerDelegate>
 
 - (void)dismissVC
 {
+    [self resetCellStates];
+    
     mainApp->setupCam([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.width);
     [self dismissViewControllerAnimated:YES completion:^{
         [MBProgressHUD hideHUDForView:self.view animated:YES];
@@ -217,11 +224,10 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
 
 - (void)showDeleteButton:(BOOL)show
 {
-    [self.navigationController.navigationBar bringSubviewToFront:self.deleteButton];
     CGAffineTransform targetTransform;
     if ( show ) {
-        self.deleteButton.hidden = !show;
-        targetTransform = CGAffineTransformIdentity;
+        [self.deleteButton setHidden:!show];
+        targetTransform = CGAffineTransformMakeTranslation(0.0f, 0.0f);
     }
     else {
         targetTransform = CGAffineTransformMakeTranslation(0.0f, -self.navigationController.navigationBar.frame.size.height);
@@ -232,9 +238,7 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
                          self.deleteButton.transform = targetTransform;
                      }
                      completion:^(BOOL finished){
-                         self.deleteButton.hidden = !show;
-                         NSLog(@"AFTER HIDDEN: %@", self.deleteButton.hidden ? @"YES" : @"NO");
-                         NSLog(@"AFTER FRAME: %@", NSStringFromCGRect(self.deleteButton.frame));
+                         [self.deleteButton setHidden:!show];
                      }];
 }
 
@@ -247,6 +251,16 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     }
     
     return randomString;
+}
+
+- (void)resetCellStates
+{
+    for (NSIndexPath *path in self.indexPathsToDelete) {
+        THFacePickerCollectionViewCell *cell = (THFacePickerCollectionViewCell *)[self.facesCollectionView cellForItemAtIndexPath:path];
+        [cell highlightSelected:NO];
+    }
+    
+    [self.indexPathsToDelete removeAllObjects];
 }
 
 #pragma mark - UIImagePickerController Delegate
@@ -373,7 +387,6 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
                             [self.indexPathsToDelete removeObject:pointIndexPath];
                         }
                     }
-                    NSLog(@"DELETE PATHS COUNT: %zd", self.indexPathsToDelete.count);
                     
                     if ( self.indexPathsToDelete.count > 0 ) {
                         
