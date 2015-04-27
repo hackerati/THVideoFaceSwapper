@@ -84,7 +84,7 @@ static const string kTHSavedImagesExtension = ".png";
 - (void)loadFace:(UIImage *)image saveImage:(BOOL)save withCompletion:(void (^)(void))completion
 {
     NSLog(@"LOADING FACE");
-//    dispatch_async(dispatch_queue_create("imageLoadingQueue", NULL), ^{
+    dispatch_async(dispatch_queue_create("imageLoadingQueue", NULL), ^{
     
         ofImage pickedImage;
         ofxiOSUIImageToOFImage(image, pickedImage);
@@ -114,7 +114,7 @@ static const string kTHSavedImagesExtension = ".png";
                 completion();
             }
         });
-//    });
+    });
 }
 
 UIImage * uiimageFromOFImage(ofImage inputImage)
