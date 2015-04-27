@@ -57,80 +57,30 @@ static const string kTHSavedImagesExtension = ".png";
     _collectionView = nil;
     _savedFaces = nil;
     _indexPathsToDelete = nil;
+    mainApp = NULL;
     [super dealloc];
 }
 
-- (NSString *)randomString {
-    const NSInteger alphanumericLettersCount = [kTHAlphanumericCharacters length];
-    
-    NSMutableString *randomString = [[NSMutableString alloc] init];
-    for (int i = 0; i < 10; i++) {
-        [randomString appendFormat: @"%C", [kTHAlphanumericCharacters characterAtIndex: arc4random_uniform(alphanumericLettersCount)]];
-    }
-    
-    return randomString;
-}
-
-- (void)resetCellStates
-{
-    for (NSIndexPath *path in self.indexPathsToDelete) {
-        THFacePickerCollectionViewCell *cell = (THFacePickerCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:path];
-        [cell highlightSelected:NO];
-    }
-    
-    [self.indexPathsToDelete removeAllObjects];
-}
-
-- (void)loadFace:(UIImage *)image saveImage:(BOOL)save withCompletion:(void (^)(void))completion
-{
-    NSLog(@"LOADING FACE");
-    dispatch_async(dispatch_queue_create("imageLoadingQueue", NULL), ^{
-    
-        ofImage pickedImage;
-        ofxiOSUIImageToOFImage(image, pickedImage);
-        pickedImage.rotate90(1);
-        
-        if ( save ) {
-            NSString *newFileName = [self randomString];
-            while ( [self.savedFaces containsObject:newFileName] ) { // ensures that we'll never over write a previous image (highly unlikely anyways)
-                newFileName = [self randomString];
-            }
-            string cStringSavedFaceName = ofxNSStringToString(newFileName) + kTHSavedImagesExtension;
-            // Save image to documents directory
-            pickedImage.saveImage(ofxiOSGetDocumentsDirectory() + cStringSavedFaceName);
-            [self.savedFaces addObject:ofxStringToNSString(cStringSavedFaceName)];
-        }
-        
-        pickedImage.setImageType(OF_IMAGE_COLOR); // set the type AFTER we save image to documents
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            mainApp->loadOFImage(pickedImage);
-            mainApp->setupCam([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
-            
-            [self.collectionView reloadSections:[[NSIndexSet alloc] initWithIndex:1]];
-            
-            if ( completion ) {
-                completion();
-            }
-        });
-    });
-}
-
-UIImage * uiimageFromOFImage(ofImage inputImage)
-{
-    int width = inputImage.width;
-    int height = inputImage.height;
-    float pixelForChannel = 3;
-    CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, inputImage.getPixels(), width*height*pixelForChannel, NULL);
-    CGImageRef imageRef = CGImageCreate(width, height, 8, 24, pixelForChannel*width, CGColorSpaceCreateDeviceRGB(), kCGBitmapByteOrderDefault, provider, NULL, NO, kCGRenderingIntentDefault);
-    UIImage *pngImge = [UIImage imageWithCGImage:imageRef];
-    NSData *imageData = UIImagePNGRepresentation(pngImge);
-    UIImage *output = [UIImage imageWithData:imageData];
-    return output;
-}
-
 #pragma mark - Public
+
+- (NSInteger)numberOfItemsToDelete
+{
+    return self.indexPathsToDelete.count;
+}
+
+- (void)addIndexPathToDelete:(NSIndexPath *)indexPath
+{
+    if ( ![self.indexPathsToDelete containsObject:indexPath] ) {
+        [self.indexPathsToDelete addObject:indexPath];
+    }
+}
+
+- (void)removeIndexPathToDelete:(NSIndexPath *)indexPath
+{
+    if ( [self.indexPathsToDelete containsObject:indexPath] ) {
+        [self.indexPathsToDelete removeObject:indexPath];
+    }
+}
 
 - (void)deleteSelectedItems:(void (^)(void))completion
 {
@@ -173,29 +123,82 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     return self.savedFaces[indexPath.row];
 }
 
-- (NSInteger)numberOfItemsToDelete
-{
-    return self.indexPathsToDelete.count;
-}
-
-- (void)addIndexPathToDelete:(NSIndexPath *)indexPath
-{
-    if ( ![self.indexPathsToDelete containsObject:indexPath] ) {
-        [self.indexPathsToDelete addObject:indexPath];
-    }
-}
-
-- (void)removeIndexPathToDelete:(NSIndexPath *)indexPath
-{
-    if ( [self.indexPathsToDelete containsObject:indexPath] ) {
-        [self.indexPathsToDelete removeObject:indexPath];
-    }
-}
-
 - (UIImage *)imageFromDocumentsDirectoryNamed:(NSString *)name
 {
     NSString *imagePath = [kTHDocumentsDirectoryPath stringByAppendingPathComponent:name];
     return [UIImage imageWithContentsOfFile:imagePath];
+}
+
+- (void)loadFace:(UIImage *)image saveImage:(BOOL)save withCompletion:(void (^)(void))completion
+{
+    NSLog(@"LOADING FACE");
+    dispatch_async(dispatch_queue_create("imageLoadingQueue", NULL), ^{
+        
+        ofImage pickedImage;
+        ofxiOSUIImageToOFImage(image, pickedImage);
+        pickedImage.rotate90(1);
+        
+        if ( save ) {
+            NSString *newFileName = [self randomString];
+            while ( [self.savedFaces containsObject:newFileName] ) { // ensures that we'll never over write a previous image (highly unlikely anyways)
+                newFileName = [self randomString];
+            }
+            string cStringSavedFaceName = ofxNSStringToString(newFileName) + kTHSavedImagesExtension;
+            // Save image to documents directory
+            pickedImage.saveImage(ofxiOSGetDocumentsDirectory() + cStringSavedFaceName);
+            [self.savedFaces addObject:ofxStringToNSString(cStringSavedFaceName)];
+        }
+        
+        pickedImage.setImageType(OF_IMAGE_COLOR); // set the type AFTER we save image to documents
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            mainApp->loadOFImage(pickedImage);
+            mainApp->setupCam([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+            
+            [self.collectionView reloadSections:[[NSIndexSet alloc] initWithIndex:1]];
+            
+            if ( completion ) {
+                completion();
+            }
+        });
+    });
+}
+
+- (void)resetCellStates
+{
+    for (NSIndexPath *path in self.indexPathsToDelete) {
+        THFacePickerCollectionViewCell *cell = (THFacePickerCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:path];
+        [cell highlightSelected:NO];
+    }
+    
+    [self.indexPathsToDelete removeAllObjects];
+}
+
+#pragma mark - Private
+
+- (NSString *)randomString {
+    const NSInteger alphanumericLettersCount = [kTHAlphanumericCharacters length];
+    
+    NSMutableString *randomString = [[NSMutableString alloc] init];
+    for (int i = 0; i < 10; i++) {
+        [randomString appendFormat: @"%C", [kTHAlphanumericCharacters characterAtIndex: arc4random_uniform(alphanumericLettersCount)]];
+    }
+    
+    return randomString;
+}
+
+UIImage * uiimageFromOFImage(ofImage inputImage)
+{
+    int width = inputImage.width;
+    int height = inputImage.height;
+    float pixelForChannel = 3;
+    CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, inputImage.getPixels(), width*height*pixelForChannel, NULL);
+    CGImageRef imageRef = CGImageCreate(width, height, 8, 24, pixelForChannel*width, CGColorSpaceCreateDeviceRGB(), kCGBitmapByteOrderDefault, provider, NULL, NO, kCGRenderingIntentDefault);
+    UIImage *pngImge = [UIImage imageWithCGImage:imageRef];
+    NSData *imageData = UIImagePNGRepresentation(pngImge);
+    UIImage *output = [UIImage imageWithData:imageData];
+    return output;
 }
 
 #pragma mark - UICollectionView Datasource
