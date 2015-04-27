@@ -184,8 +184,6 @@
 			</array>
 			<key>isa</key>
 			<string>PBXGroup</string>
-			<key>name</key>
-			<string>Categories</string>
 			<key>path</key>
 			<string>Categories</string>
 			<key>sourceTree</key>
@@ -238,6 +236,55 @@
 			<string>../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/logger.h</string>
 			<key>sourceTree</key>
 			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>019CEF091AEEA8E10036864A</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>019CEF0A1AEEA8F60036864A</string>
+				<string>019CEF0B1AEEA8F60036864A</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Data</string>
+			<key>path</key>
+			<string>Data</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>019CEF0A1AEEA8F60036864A</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>THFacesCollectionViewDataSource.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>019CEF0B1AEEA8F60036864A</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.cpp.objcpp</string>
+			<key>path</key>
+			<string>THFacesCollectionViewDataSource.mm</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>019CEF0C1AEEA8F60036864A</key>
+		<dict>
+			<key>fileRef</key>
+			<string>019CEF0B1AEEA8F60036864A</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
 		</dict>
 		<key>019E69F01AE58703003A6A7A</key>
 		<dict>
@@ -688,6 +735,7 @@
 				<string>E4D8936F11527B74007E1F53</string>
 				<string>250A95BA26587BE85DB0A353</string>
 				<string>1D5F3298C2FA073628012944</string>
+				<string>019CEF0C1AEEA8F60036864A</string>
 				<string>169D3C72FDE6C5590A1616F5</string>
 				<string>FB09C6B2A1DA0EA217240CB8</string>
 				<string>E212C821D1064B92DD953A42</string>
@@ -4289,6 +4337,7 @@ end
 		<dict>
 			<key>children</key>
 			<array>
+				<string>019CEF091AEEA8E10036864A</string>
 				<string>0158DAB31AE827DA00DCAB2F</string>
 				<string>019E69F51AE5872F003A6A7A</string>
 				<string>019E69F41AE5871A003A6A7A</string>

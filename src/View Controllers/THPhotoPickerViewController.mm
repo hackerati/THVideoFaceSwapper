@@ -10,21 +10,12 @@
 #include "ofApp.h"
 
 #import "THFacePickerCollectionViewCell.h"
-#import "THFacesCollectionReusableView.h"
+#import "THFacesCollectionViewDataSource.h"
 #import "MBProgressHUD.h"
 
-#import "UIImage+Decode.h"
-
-static NSString *kTHCellReuseIdentifier = @"cell";
-static NSString *kTHSupplementaryHeaderViewReuseIdentifier = @"supplementaryHeaderView";
-
-static NSString * const kTHDocumentsDirectoryPath = ofxStringToNSString(ofxiOSGetDocumentsDirectory());
-static NSString * const kTHAlphanumericCharacters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 static NSString * const kTHFacePickerViewControllerTitle = @"Face Selector";
 static NSString * const kTHDeleteButtonSingleItemTitle = @"Delete Item";
 static NSString * const kTHDeleteButtonMultiItemTitle = @"Delete Items";
-static NSString * const kTHPreInstalledFacesHeaderTitle = @"Pre-Installed Faces";
-static NSString * const kTHSavedFacesHeaderTitle = @"Saved Faces";
 
 static NSArray * const kTHLoadingDetails = @[@"You're gonna look great!", @"Ooo how handsome", @"Your alias is on the way!", @"Better than Mrs. Doubtfire"];
 
@@ -43,8 +34,7 @@ UIImagePickerControllerDelegate>
 }
 
 @property (nonatomic) UICollectionView *facesCollectionView;
-@property (nonatomic) NSMutableArray *savedFaces;
-@property (nonatomic) NSMutableSet *indexPathsToDelete;
+@property (nonatomic) THFacesCollectionViewDataSource *dataSource;
 @property (nonatomic) UIButton *deleteButton;
 @property (nonatomic) UIImage *takenPhoto;
 
@@ -57,10 +47,6 @@ UIImagePickerControllerDelegate>
     self = [super init];
     if ( self ) {
         mainApp = (ofApp *)ofGetAppPtr();
-        
-        _savedFaces = (NSMutableArray *)[[[NSFileManager defaultManager] contentsOfDirectoryAtPath:kTHDocumentsDirectoryPath error:nil] mutableCopy];
-        _indexPathsToDelete = [[NSMutableSet alloc] init];
-        
         self.title = kTHFacePickerViewControllerTitle;
     }
     return self;
@@ -100,12 +86,11 @@ UIImagePickerControllerDelegate>
     flowLayout.minimumLineSpacing = kTHItemSpacing;
     
     _facesCollectionView = [[UICollectionView alloc] initWithFrame:collectionViewFrame collectionViewLayout:flowLayout];
-    [_facesCollectionView registerClass:[THFacePickerCollectionViewCell class] forCellWithReuseIdentifier:kTHCellReuseIdentifier];
-    [_facesCollectionView registerClass:[THFacesCollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:kTHSupplementaryHeaderViewReuseIdentifier];
     _facesCollectionView.backgroundColor = [UIColor whiteColor];
     _facesCollectionView.contentInset = kTHCollectionViewEdgeInsets;
     _facesCollectionView.delegate = self;
-    _facesCollectionView.dataSource = self;
+    _dataSource = [[THFacesCollectionViewDataSource alloc] initWithCollectionView:_facesCollectionView];
+    _facesCollectionView.dataSource = _dataSource;
     _facesCollectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:_facesCollectionView];
     
@@ -142,7 +127,7 @@ UIImagePickerControllerDelegate>
 
 - (void)dismissVC
 {
-    [self resetCellStates];
+    [self.dataSource resetCellStates];
     
     mainApp->setupCam([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.width);
     [self.navigationController dismissViewControllerAnimated:YES completion:^{
@@ -176,50 +161,6 @@ UIImagePickerControllerDelegate>
     hud.detailsLabelText = [self randomLoadingDetail];
 }
 
-- (void)loadFace:(UIImage *)image saveImage:(BOOL)save withCompletion:(void (^)(void))completion
-{
-    [self showLoadingHUD];
-    
-    dispatch_async(dispatch_queue_create("imageLoadingQueue", NULL), ^{
-        
-        ofImage pickedImage;
-        ofxiOSUIImageToOFImage(image, pickedImage);
-        pickedImage.rotate90(1);
-        
-        if ( save ) {
-            NSString *newFileName = [self randomString];
-            while ( [self.savedFaces containsObject:newFileName] ) { // ensures that we'll never over write a previous image (highly unlikely anyways)
-                newFileName = [self randomString];
-            }
-            string cStringSavedFaceName = ofxNSStringToString(newFileName) + ".png";
-            // Save image to documents directory
-            pickedImage.saveImage(ofxiOSGetDocumentsDirectory() + cStringSavedFaceName);
-            [self.savedFaces addObject:ofxStringToNSString(cStringSavedFaceName)];
-        }
-        
-        pickedImage.setImageType(OF_IMAGE_COLOR); // set the type AFTER we save image to documents
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            mainApp->loadOFImage(pickedImage);
-            mainApp->setupCam(self.view.frame.size.width, self.view.frame.size.height);
-            
-            [self.facesCollectionView reloadSections:[[NSIndexSet alloc] initWithIndex:1]];
-            self.takenPhoto = nil; // manual release
-            
-            if ( completion ) {
-                completion();
-            }
-        });
-    });
-}
-
-- (UIImage *)imageFromDocumentsDirectoryNamed:(NSString *)name
-{
-    NSString *imagePath = [kTHDocumentsDirectoryPath stringByAppendingPathComponent:name];
-    return [UIImage imageWithContentsOfFile:imagePath];
-}
-
 - (void)showDeleteButton:(BOOL)show
 {
     CGAffineTransform targetTransform;
@@ -240,40 +181,6 @@ UIImagePickerControllerDelegate>
                      }];
 }
 
-- (NSString *)randomString {
-    const NSInteger alphanumericLettersCount = [kTHAlphanumericCharacters length];
-    
-    NSMutableString *randomString = [[NSMutableString alloc] init];
-    for (int i = 0; i < 10; i++) {
-        [randomString appendFormat: @"%C", [kTHAlphanumericCharacters characterAtIndex: arc4random_uniform(alphanumericLettersCount)]];
-    }
-    
-    return randomString;
-}
-
-- (void)resetCellStates
-{
-    for (NSIndexPath *path in self.indexPathsToDelete) {
-        THFacePickerCollectionViewCell *cell = (THFacePickerCollectionViewCell *)[self.facesCollectionView cellForItemAtIndexPath:path];
-        [cell highlightSelected:NO];
-    }
-    
-    [self.indexPathsToDelete removeAllObjects];
-}
-
-UIImage * uiimageFromOFImage(ofImage inputImage)
-{
-    int width = inputImage.width;
-    int height = inputImage.height;
-    float pixelForChannel = 3;
-    CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, inputImage.getPixels(), width*height*pixelForChannel, NULL);
-    CGImageRef imageRef = CGImageCreate(width, height, 8, 24, pixelForChannel*width, CGColorSpaceCreateDeviceRGB(), kCGBitmapByteOrderDefault, provider, NULL, NO, kCGRenderingIntentDefault);
-    UIImage *pngImge = [UIImage imageWithCGImage:imageRef];
-    NSData *imageData = UIImagePNGRepresentation(pngImge);
-    UIImage *output = [UIImage imageWithData:imageData];
-    return output;
-}
-
 #pragma mark - UIAlertView Delegate
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
@@ -284,7 +191,9 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     }
     
     [self.navigationController dismissViewControllerAnimated:YES completion:^{
-        [self loadFace:self.takenPhoto saveImage:save withCompletion:^{
+        [self showLoadingHUD];
+        [self.dataSource loadFace:self.takenPhoto saveImage:save withCompletion:^{
+            self.takenPhoto = nil;
             [self dismissVC];
         }];
     }];
@@ -322,9 +231,9 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
                 mainApp->loadFace(mainApp->faces.getPath(indexPath.row));
             }
             else {
-                NSString *imageName = self.savedFaces[indexPath.row];
+                NSString *imageName = [self.dataSource savedImageNameAtIndexPath:indexPath];
                 ofImage savedImage;
-                ofxiOSUIImageToOFImage([self imageFromDocumentsDirectoryNamed:imageName], savedImage);
+                ofxiOSUIImageToOFImage([self.dataSource imageFromDocumentsDirectoryNamed:imageName], savedImage);
                 mainApp->loadOFImage(savedImage);
             }
             
@@ -333,73 +242,13 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     });
 }
 
-#pragma mark - UICollectionView Datasource
-
-- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
-{
-    return 2;
-}
-
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
-{
-    if ( section == 0 ) {
-        return mainApp->faces.size();
-    }
-    else {
-        return self.savedFaces.count;
-    }
-}
-
-- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
-{
-    THFacesCollectionReusableView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:kTHSupplementaryHeaderViewReuseIdentifier forIndexPath:indexPath];
-    
-    if ( indexPath.section == 0 ) {
-        headerView.title = kTHPreInstalledFacesHeaderTitle;
-    }
-    else {
-        headerView.title = kTHSavedFacesHeaderTitle;
-    }
-    
-    return headerView;
-}
-
--(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    THFacePickerCollectionViewCell *cell = (THFacePickerCollectionViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kTHCellReuseIdentifier forIndexPath:indexPath];
-
-    cell.currentIndexPath = indexPath;
-    [cell clearImage];
-    [cell startLoading];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        
-        UIImage *faceImage;
-        if ( indexPath.section == 0 ) {
-            ofImage preInstalledImage;
-            preInstalledImage.loadImage(mainApp->faces.getPath(indexPath.row));
-            faceImage = uiimageFromOFImage(preInstalledImage);
-        }
-        else {
-            
-            faceImage = [[UIImage imageWithContentsOfFile:[kTHDocumentsDirectoryPath stringByAppendingPathComponent:[self.savedFaces objectAtIndex:indexPath.row]]] decodedImage];
-        }
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [cell setFaceWithImage:faceImage atIndexPath:indexPath];
-            [cell stopLoading];
-        });
-    });
-    
-    return cell;
-}
-
 #pragma mark - UIGestureRecognizer Selectors
 
 - (void)longPress:(UIGestureRecognizer *)gesture
 {
     switch ( gesture.state ) {
         case UIGestureRecognizerStateBegan: {
-            CGPoint gesturePoint = [gesture locationInView:self.facesCollectionView];
+            const CGPoint gesturePoint = [gesture locationInView:self.facesCollectionView];
             NSIndexPath *pointIndexPath = [self.facesCollectionView indexPathForItemAtPoint:gesturePoint];
             
             if ( pointIndexPath ) {
@@ -410,17 +259,16 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
                     [selectedCell highlightSelected:!selectedCell.highlightSelected];
                     
                     if ( selectedCell.highlightSelected ) {
-                        [self.indexPathsToDelete addObject:pointIndexPath];
+                        [self.dataSource addIndexPathToDelete:pointIndexPath];
                     }
                     else {
-                        if ( [self.indexPathsToDelete containsObject:pointIndexPath] ) {
-                            [self.indexPathsToDelete removeObject:pointIndexPath];
-                        }
+                        [self.dataSource removeIndexPathToDelete:pointIndexPath];
                     }
                     
-                    if ( self.indexPathsToDelete.count > 0 ) {
+                    const NSInteger itemsToDelete = [self.dataSource numberOfItemsToDelete];
+                    if ( itemsToDelete > 0 ) {
                         
-                        if ( self.indexPathsToDelete.count > 1 ) {
+                        if ( itemsToDelete > 1 ) {
                             [self.deleteButton setTitle:kTHDeleteButtonMultiItemTitle forState:UIControlStateNormal];
                         }
                         else {
@@ -453,34 +301,7 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
 
 - (void)deleteSelectedItems
 {
-    [self.facesCollectionView performBatchUpdates:^{
-        
-        NSMutableArray *fileNamesToRemove = [NSMutableArray array];
-        NSError *err;
-        for (NSIndexPath *path in self.indexPathsToDelete) {
-            
-            THFacePickerCollectionViewCell *cell = (THFacePickerCollectionViewCell *)[self.facesCollectionView cellForItemAtIndexPath:path];
-            [cell highlightSelected:NO];
-            
-            [fileNamesToRemove addObject:[self.savedFaces objectAtIndex:path.row]];
-            NSString *fileToDelete = [kTHDocumentsDirectoryPath stringByAppendingPathComponent:[self.savedFaces objectAtIndex:path.row]];
-            
-            if ( ![[NSFileManager defaultManager] removeItemAtPath:fileToDelete error:&err] ) {
-                
-                UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:@"File Save Error"
-                                                                     message:err.localizedDescription
-                                                                    delegate:nil
-                                                           cancelButtonTitle:@"Ok"
-                                                           otherButtonTitles:nil, nil];
-                [errorAlert show];
-            }
-        }
-        
-        [self.savedFaces removeObjectsInArray:fileNamesToRemove];
-        [self.facesCollectionView deleteItemsAtIndexPaths:[self.indexPathsToDelete allObjects]];
-        
-    } completion:^(BOOL finished){
-        [self.indexPathsToDelete removeAllObjects];
+    [self.dataSource deleteSelectedItems:^{
         [self showDeleteButton:NO];
     }];
 }
