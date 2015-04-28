@@ -12,6 +12,7 @@
 #import "THFacePickerCollectionViewCell.h"
 #import "THFacesCollectionViewDataSource.h"
 #import "MBProgressHUD.h"
+#import "ASScreenRecorder.h"
 
 static NSString * const kTHFacePickerViewControllerTitle = @"Face Selector";
 static NSString * const kTHDeleteButtonSingleItemTitle = @"Delete Item";
@@ -38,6 +39,8 @@ UIImagePickerControllerDelegate>
 @property (nonatomic) UIButton *deleteButton;
 @property (nonatomic) UIImage *takenPhoto;
 
+@property (nonatomic) BOOL shouldStartRecording;
+
 @end
 
 @implementation THPhotoPickerViewController
@@ -47,6 +50,8 @@ UIImagePickerControllerDelegate>
     self = [super init];
     if ( self ) {
         mainApp = (ofApp *)ofGetAppPtr();
+        _shouldStartRecording = NO;
+        
         self.title = kTHFacePickerViewControllerTitle;
     }
     return self;
@@ -58,7 +63,10 @@ UIImagePickerControllerDelegate>
     self.navigationItem.leftBarButtonItem = dismissButton;
     
     UIBarButtonItem *cameraButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"camera"] style:UIBarButtonItemStylePlain target:self action:@selector(presentCameraPicker)];
-    self.navigationItem.rightBarButtonItem = cameraButton;
+    
+    UIBarButtonItem *recordButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"record"] style:UIBarButtonItemStylePlain target:self action:@selector(recordVideo)];
+    
+    self.navigationItem.rightBarButtonItems = @[cameraButton, recordButton];
 }
 
 - (void)setupDeleteButton
@@ -121,6 +129,12 @@ UIImagePickerControllerDelegate>
 {
     [super viewDidAppear:animated];
     [self setupDeleteButton]; // prevents bug where button doesn't appear after taking a photo and trying to delete a saved photo
+    
+    if ( [ASScreenRecorder sharedInstance].isRecording ) {
+        [[ASScreenRecorder sharedInstance] stopRecordingWithCompletion:^{
+            self.shouldStartRecording = NO;
+        }];
+    }
 }
 
 #pragma mark - Private
@@ -132,17 +146,11 @@ UIImagePickerControllerDelegate>
     mainApp->setupCam([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.width);
     [self.navigationController dismissViewControllerAnimated:YES completion:^{
         [MBProgressHUD hideHUDForView:self.view animated:YES];
+        
+        if ( self.shouldStartRecording && ![ASScreenRecorder sharedInstance].isRecording ) {
+            [[ASScreenRecorder sharedInstance] startRecording];
+        }
     }];
-}
-
-- (void)presentCameraPicker
-{
-    UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
-    imagePicker.delegate = self;
-    imagePicker.allowsEditing = NO;
-    imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
-    
-    [self.navigationController presentViewController:imagePicker animated:YES completion:nil];
 }
 
 - (NSString *)randomLoadingDetail
@@ -299,11 +307,27 @@ UIImagePickerControllerDelegate>
 
 #pragma mark - UIButton Selectors
 
+- (void)presentCameraPicker
+{
+    UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
+    imagePicker.delegate = self;
+    imagePicker.allowsEditing = NO;
+    imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+    
+    [self.navigationController presentViewController:imagePicker animated:YES completion:nil];
+}
+
 - (void)deleteSelectedItems
 {
     [self.dataSource deleteSelectedItems:^{
         [self showDeleteButton:NO];
     }];
+}
+
+- (void)recordVideo
+{
+    self.shouldStartRecording = YES;
+    [self dismissVC];
 }
 
 @end
