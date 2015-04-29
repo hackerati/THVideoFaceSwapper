@@ -15,8 +15,10 @@
 		0158DAB61AE827F600DCAB2F /* UIImage+Decode.m in Sources */ = {isa = PBXBuildFile; fileRef = 0158DAB51AE827F600DCAB2F /* UIImage+Decode.m */; };
 		019CEF0C1AEEA8F60036864A /* THFacesCollectionViewDataSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 019CEF0B1AEEA8F60036864A /* THFacesCollectionViewDataSource.mm */; };
 		01B2F1501AE6977E00B5E69A /* THFacePickerCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 01B2F14F1AE6977E00B5E69A /* THFacePickerCollectionViewCell.m */; };
-		01F2708D1AF0016000BC4414 /* ASScreenRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 01F2708C1AF0016000BC4414 /* ASScreenRecorder.m */; };
 		01F2708F1AF001B600BC4414 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01F2708E1AF001B600BC4414 /* AssetsLibrary.framework */; };
+		01F270961AF1363C00BC4414 /* Glimpse.m in Sources */ = {isa = PBXBuildFile; fileRef = 01F270931AF1363C00BC4414 /* Glimpse.m */; };
+		01F270971AF1363C00BC4414 /* GlimpseAssetWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 01F270951AF1363C00BC4414 /* GlimpseAssetWriter.m */; };
+		01F270991AF1876A00BC4414 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01F270981AF1876A00BC4414 /* MediaPlayer.framework */; };
 		091CD626FECB03B3A6B3A1B2 /* PAW.cc in Sources */ = {isa = PBXBuildFile; fileRef = 04BD78075F8C2DEC76B2F33A /* PAW.cc */; };
 		10B69DE456AED1288FC9316B /* Tracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A810DF70319A10353588F5DB /* Tracker.cpp */; };
 		169D3C72FDE6C5590A1616F5 /* ofxCvFloatImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B6A03390302D5A2C9F0E4AB /* ofxCvFloatImage.cpp */; };
@@ -109,9 +111,12 @@
 		01B2F14E1AE6977E00B5E69A /* THFacePickerCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = THFacePickerCollectionViewCell.h; sourceTree = "<group>"; };
 		01B2F14F1AE6977E00B5E69A /* THFacePickerCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = THFacePickerCollectionViewCell.m; sourceTree = "<group>"; };
 		01DAE5C2E3E0A74207B2BE49 /* saving.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = saving.h; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/saving.h; sourceTree = SOURCE_ROOT; };
-		01F2708B1AF0016000BC4414 /* ASScreenRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASScreenRecorder.h; sourceTree = "<group>"; };
-		01F2708C1AF0016000BC4414 /* ASScreenRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASScreenRecorder.m; sourceTree = "<group>"; };
 		01F2708E1AF001B600BC4414 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
+		01F270921AF1363C00BC4414 /* Glimpse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Glimpse.h; sourceTree = "<group>"; };
+		01F270931AF1363C00BC4414 /* Glimpse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Glimpse.m; sourceTree = "<group>"; };
+		01F270941AF1363C00BC4414 /* GlimpseAssetWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlimpseAssetWriter.h; sourceTree = "<group>"; };
+		01F270951AF1363C00BC4414 /* GlimpseAssetWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GlimpseAssetWriter.m; sourceTree = "<group>"; };
+		01F270981AF1876A00BC4414 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		03A75A648BC4CF1D9DEDD0CE /* Flow.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = Flow.cpp; path = ../../../addons/ofxCv/libs/ofxCv/src/Flow.cpp; sourceTree = SOURCE_ROOT; };
 		04BD78075F8C2DEC76B2F33A /* PAW.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = PAW.cc; path = ../../../addons/ofxFaceTracker/libs/FaceTracker/src/lib/PAW.cc; sourceTree = SOURCE_ROOT; };
 		057122A817D12571F8C0C7A4 /* ofxCvGrayscaleImage.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxCvGrayscaleImage.cpp; path = ../../../addons/ofxOpenCv/src/ofxCvGrayscaleImage.cpp; sourceTree = SOURCE_ROOT; };
@@ -294,6 +299,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01F270991AF1876A00BC4414 /* MediaPlayer.framework in Frameworks */,
 				01F2708F1AF001B600BC4414 /* AssetsLibrary.framework in Frameworks */,
 				E41D421413B3A95300A75A5D /* libofxiOS_iphoneos_Debug.a in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
@@ -401,8 +407,10 @@
 		01F270911AF0024F00BC4414 /* Video */ = {
 			isa = PBXGroup;
 			children = (
-				01F2708B1AF0016000BC4414 /* ASScreenRecorder.h */,
-				01F2708C1AF0016000BC4414 /* ASScreenRecorder.m */,
+				01F270921AF1363C00BC4414 /* Glimpse.h */,
+				01F270931AF1363C00BC4414 /* Glimpse.m */,
+				01F270941AF1363C00BC4414 /* GlimpseAssetWriter.h */,
+				01F270951AF1363C00BC4414 /* GlimpseAssetWriter.m */,
 			);
 			name = Video;
 			sourceTree = "<group>";
@@ -533,6 +541,7 @@
 		29B97323FDCFA39411CA2CEA /* core frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				01F270981AF1876A00BC4414 /* MediaPlayer.framework */,
 				01F2708E1AF001B600BC4414 /* AssetsLibrary.framework */,
 				E41D400613B39D2100A75A5D /* AVFoundation.framework */,
 				E41D400713B39D2100A75A5D /* CoreMedia.framework */,
@@ -1095,6 +1104,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E4D8936E11527B74007E1F53 /* main.mm in Sources */,
+				01F270961AF1363C00BC4414 /* Glimpse.m in Sources */,
 				E4D8936F11527B74007E1F53 /* ofApp.mm in Sources */,
 				250A95BA26587BE85DB0A353 /* ofxCvColorImage.cpp in Sources */,
 				1D5F3298C2FA073628012944 /* ofxCvContourFinder.cpp in Sources */,
@@ -1131,10 +1141,10 @@
 				DE44164709810C299EAAB202 /* IO.cc in Sources */,
 				010F07101AE5840D00551A18 /* MBProgressHUD.m in Sources */,
 				4F02F4D92C36436C945A6716 /* Patch.cc in Sources */,
-				01F2708D1AF0016000BC4414 /* ASScreenRecorder.m in Sources */,
 				091CD626FECB03B3A6B3A1B2 /* PAW.cc in Sources */,
 				E6E21460246219EE9394310F /* PDM.cc in Sources */,
 				E43C5A4AB73C09290F70362D /* Tracker.cc in Sources */,
+				01F270971AF1363C00BC4414 /* GlimpseAssetWriter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

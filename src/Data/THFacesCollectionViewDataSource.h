@@ -17,6 +17,8 @@
 - (void)removeIndexPathToDelete:(NSIndexPath *)indexPath;
 - (void)deleteSelectedItems:(void (^)(void))completion;
 
+- (void)addSavedVideoNamed:(NSString *)name;
+- (NSString *)movieFromDocumentDirectoryAtIndexPath:(NSIndexPath *)indexPath;
 - (NSString *)savedImageNameAtIndexPath:(NSIndexPath *)indexPath;
 - (UIImage *)imageFromDocumentsDirectoryNamed:(NSString *)name;
 

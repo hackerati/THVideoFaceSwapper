@@ -30,8 +30,9 @@ static const string kTHSavedImagesExtension = ".png";
 }
 
 @property (nonatomic) UICollectionView *collectionView;
-@property (nonatomic) NSMutableArray *savedFaces;
-@property (nonatomic) NSMutableSet *indexPathsToDelete;
+@property (nonatomic, retain) NSMutableArray *savedFaces;
+@property (nonatomic, retain) NSMutableArray *savedVideos;
+@property (nonatomic, retain) NSMutableSet *indexPathsToDelete;
 
 @end
 
@@ -46,7 +47,19 @@ static const string kTHSavedImagesExtension = ".png";
         [_collectionView registerClass:[THFacePickerCollectionViewCell class] forCellWithReuseIdentifier:kTHCellReuseIdentifier];
         [_collectionView registerClass:[THFacesCollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:kTHSupplementaryHeaderViewReuseIdentifier];
         
-        _savedFaces = (NSMutableArray *)[[[NSFileManager defaultManager] contentsOfDirectoryAtPath:kTHDocumentsDirectoryPath error:nil] mutableCopy];
+        _savedFaces = [[NSMutableArray alloc] init];
+        _savedVideos = [[NSMutableArray alloc] init];
+        NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:kTHDocumentsDirectoryPath error:nil];
+        for (NSString *filePath in files) {
+            if ( [filePath containsString:@".mov"] ) {
+                NSLog(@"%@", filePath);
+                [_savedVideos addObject:filePath];
+            }
+            else {
+                [_savedFaces addObject:filePath];
+            }
+        }
+        
         _indexPathsToDelete = [[NSMutableSet alloc] init];
     }
     return self;
@@ -56,6 +69,7 @@ static const string kTHSavedImagesExtension = ".png";
 {
     _collectionView = nil;
     _savedFaces = nil;
+    _savedVideos = nil;
     _indexPathsToDelete = nil;
     mainApp = NULL;
     [super dealloc];
@@ -116,6 +130,19 @@ static const string kTHSavedImagesExtension = ".png";
             completion();
         }
     }];
+}
+
+- (void)addSavedVideoNamed:(NSString *)name
+{
+    [self.savedVideos addObject:name];
+    [self.collectionView reloadSections:[[NSIndexSet alloc] initWithIndex:2]];
+}
+
+- (NSString *)movieFromDocumentDirectoryAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSLog(@"%@", self.savedVideos);
+    NSString *name = [self.savedVideos objectAtIndex:indexPath.row];
+    return [kTHDocumentsDirectoryPath stringByAppendingPathComponent:name];
 }
 
 - (NSString *)savedImageNameAtIndexPath:(NSIndexPath *)indexPath
@@ -205,7 +232,7 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-    return 2;
+    return 3;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
@@ -213,8 +240,11 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     if ( section == 0 ) {
         return mainApp->faces.size();
     }
-    else {
+    else if ( section == 1 ) {
         return self.savedFaces.count;
+    }
+    else {
+        return self.savedVideos.count;
     }
 }
 
@@ -225,8 +255,11 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
     if ( indexPath.section == 0 ) {
         headerView.title = kTHPreInstalledFacesHeaderTitle;
     }
-    else {
+    else if ( indexPath.section == 1 ) {
         headerView.title = kTHSavedFacesHeaderTitle;
+    }
+    else {
+        headerView.title = @"Saved Videos";
     }
     
     return headerView;
@@ -247,9 +280,13 @@ UIImage * uiimageFromOFImage(ofImage inputImage)
             preInstalledImage.loadImage(mainApp->faces.getPath(indexPath.row));
             faceImage = uiimageFromOFImage(preInstalledImage);
         }
-        else {
+        else if ( indexPath.section == 1 ) {
             
             faceImage = [[UIImage imageWithContentsOfFile:[kTHDocumentsDirectoryPath stringByAppendingPathComponent:[self.savedFaces objectAtIndex:indexPath.row]]] decodedImage];
+        }
+        else {
+            // TODO: Get first frame of video or something
+            faceImage = [UIImage imageNamed:@"record"];
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{

@@ -6,6 +6,8 @@
 //
 //
 
+#import <MediaPlayer/MediaPlayer.h>
+
 #import "THPhotoPickerViewController.h"
 #include "ofApp.h"
 
@@ -13,6 +15,7 @@
 #import "THFacesCollectionViewDataSource.h"
 #import "MBProgressHUD.h"
 #import "ASScreenRecorder.h"
+#import "Glimpse.h"
 
 static NSString * const kTHFacePickerViewControllerTitle = @"Face Selector";
 static NSString * const kTHDeleteButtonSingleItemTitle = @"Delete Item";
@@ -39,6 +42,8 @@ UIImagePickerControllerDelegate>
 @property (nonatomic) UIButton *deleteButton;
 @property (nonatomic) UIImage *takenPhoto;
 
+@property (nonatomic) Glimpse *recorder;
+
 @property (nonatomic) BOOL shouldStartRecording;
 
 @end
@@ -51,6 +56,7 @@ UIImagePickerControllerDelegate>
     if ( self ) {
         mainApp = (ofApp *)ofGetAppPtr();
         _shouldStartRecording = NO;
+        _recorder = [[Glimpse alloc] init];
         
         self.title = kTHFacePickerViewControllerTitle;
     }
@@ -125,16 +131,20 @@ UIImagePickerControllerDelegate>
     [self setupCollectionView];
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    if ( self.shouldStartRecording ) {
+        [self.recorder stop];
+        self.shouldStartRecording = NO;
+    }
+}
+
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
     [self setupDeleteButton]; // prevents bug where button doesn't appear after taking a photo and trying to delete a saved photo
-    
-    if ( [ASScreenRecorder sharedInstance].isRecording ) {
-        [[ASScreenRecorder sharedInstance] stopRecordingWithCompletion:^{
-            self.shouldStartRecording = NO;
-        }];
-    }
 }
 
 #pragma mark - Private
@@ -147,10 +157,22 @@ UIImagePickerControllerDelegate>
     [self.navigationController dismissViewControllerAnimated:YES completion:^{
         [MBProgressHUD hideHUDForView:self.view animated:YES];
         
-        if ( self.shouldStartRecording && ![ASScreenRecorder sharedInstance].isRecording ) {
-            [[ASScreenRecorder sharedInstance] startRecording];
+        if ( self.shouldStartRecording ) {
+            [self.recorder startRecordingView:ofxiOSGetUIWindow() onCompletion:^(NSURL *fileOutput){
+                [self.dataSource addSavedVideoNamed:fileOutput.lastPathComponent];
+            }];
         }
     }];
+}
+
+- (void)movie:(UIImage *)image didFinishSavingWithError:(NSError *)err contextInfo:(void *)contextInfo
+{
+    if ( err ) {
+        NSLog(@"%@", err.localizedDescription);
+    }
+    else {
+        NSLog(@"SAVED MOVIE!!!");
+    }
 }
 
 - (NSString *)randomLoadingDetail
@@ -231,21 +253,30 @@ UIImagePickerControllerDelegate>
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self showLoadingHUD];
+    if ( indexPath.section < 2 ) {
+        [self showLoadingHUD];
+    }
     
     dispatch_async(dispatch_queue_create("imageLoadingQueue", NULL), ^{
         dispatch_async(dispatch_get_main_queue(), ^{
             if ( indexPath.section == 0 ) {
                 mainApp->loadFace(mainApp->faces.getPath(indexPath.row));
+                [self dismissVC];
             }
-            else {
+            else if ( indexPath.section == 1 ) {
                 NSString *imageName = [self.dataSource savedImageNameAtIndexPath:indexPath];
                 ofImage savedImage;
                 ofxiOSUIImageToOFImage([self.dataSource imageFromDocumentsDirectoryNamed:imageName], savedImage);
                 mainApp->loadOFImage(savedImage);
+                [self dismissVC];
+            }
+            else {
+                NSURL *movieURL = [NSURL fileURLWithPath:[self.dataSource movieFromDocumentDirectoryAtIndexPath:indexPath]];
+                MPMoviePlayerViewController *moviePlayerViewController = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
+                moviePlayerViewController.view.frame = self.view.frame;
+                [self presentMoviePlayerViewControllerAnimated:moviePlayerViewController];
             }
             
-            [self dismissVC];
         });
     });
 }
