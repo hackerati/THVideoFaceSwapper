@@ -14,7 +14,6 @@
 #import "THFacePickerCollectionViewCell.h"
 #import "THFacesCollectionViewDataSource.h"
 #import "MBProgressHUD.h"
-#import "ASScreenRecorder.h"
 #import "Glimpse.h"
 
 static NSString * const kTHFacePickerViewControllerTitle = @"Face Selector";
