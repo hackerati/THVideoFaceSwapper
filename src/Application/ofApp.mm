@@ -210,7 +210,8 @@ void ofApp::touchUp(ofTouchEventArgs & touch){
 //--------------------------------------------------------------
 void ofApp::touchDoubleTap(ofTouchEventArgs & touch){
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:photoPicker];
-    [ofxiOSGetViewController() presentViewController:navController animated:YES completion:^{
+    UIViewController *vc = (UIViewController *)ofxiOSGetViewController();
+    [vc presentViewController:navController animated:YES completion:^{
         cam.close();
         camTracker.stopThread();
     }];

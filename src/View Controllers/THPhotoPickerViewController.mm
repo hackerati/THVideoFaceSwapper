@@ -118,7 +118,6 @@ UIImagePickerControllerDelegate>
 {
     _facesCollectionView = nil;
     mainApp = NULL;
-    [super dealloc];
 }
 
 - (void)loadView

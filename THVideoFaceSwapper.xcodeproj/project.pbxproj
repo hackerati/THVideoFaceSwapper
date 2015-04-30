@@ -353,6 +353,11 @@
 			children = (
 				01F2708A1AF0010E00BC4414 /* Collection View */,
 				019E69F21AE5870F003A6A7A /* Loading */,
+				019E69F21AE5870F003A6A7A /* Loading */,
+				01B2F14E1AE6977E00B5E69A /* THFacePickerCollectionViewCell.h */,
+				01B2F14F1AE6977E00B5E69A /* THFacePickerCollectionViewCell.m */,
+				0158DAB01AE806A100DCAB2F /* THFacesCollectionReusableView.h */,
+				0158DAB11AE806A100DCAB2F /* THFacesCollectionReusableView.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1166,6 +1171,11 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = ofxiOS_Prefix.pch;
 				INFOPLIST_FILE = "ofxiOS-Info.plist";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = ofxiOS_Prefix.pch;
+				INFOPLIST_FILE = "ofxiOS-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				VALID_ARCHS = "armv6 armv7";
 			};
@@ -1177,6 +1187,11 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = ofxiOS_Prefix.pch;
 				INFOPLIST_FILE = "ofxiOS-Info.plist";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = ofxiOS_Prefix.pch;
+				INFOPLIST_FILE = "ofxiOS-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				VALID_ARCHS = "armv6 armv7";
 			};
