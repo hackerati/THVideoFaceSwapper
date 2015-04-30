@@ -29,7 +29,7 @@ static const string kTHSavedImagesExtension = ".png";
     ofApp *mainApp;
 }
 
-@property (nonatomic) UICollectionView *collectionView;
+@property (weak, nonatomic) UICollectionView *collectionView;
 @property (nonatomic) NSMutableArray *savedFaces;
 @property (nonatomic) NSMutableSet *indexPathsToDelete;
 
@@ -58,7 +58,6 @@ static const string kTHSavedImagesExtension = ".png";
     _savedFaces = nil;
     _indexPathsToDelete = nil;
     mainApp = NULL;
-    [super dealloc];
 }
 
 #pragma mark - Public
