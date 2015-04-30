@@ -52,7 +52,6 @@ static const string kTHSavedImagesExtension = ".png";
         NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:kTHDocumentsDirectoryPath error:nil];
         for (NSString *filePath in files) {
             if ( [filePath containsString:@".mov"] ) {
-                NSLog(@"%@", filePath);
                 [_savedVideos addObject:filePath];
             }
             else {
@@ -140,7 +139,6 @@ static const string kTHSavedImagesExtension = ".png";
 
 - (NSString *)movieFromDocumentDirectoryAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSLog(@"%@", self.savedVideos);
     NSString *name = [self.savedVideos objectAtIndex:indexPath.row];
     return [kTHDocumentsDirectoryPath stringByAppendingPathComponent:name];
 }
@@ -158,7 +156,6 @@ static const string kTHSavedImagesExtension = ".png";
 
 - (void)loadFace:(UIImage *)image saveImage:(BOOL)save withCompletion:(void (^)(void))completion
 {
-    NSLog(@"LOADING FACE");
     dispatch_async(dispatch_queue_create("imageLoadingQueue", NULL), ^{
         
         ofImage pickedImage;

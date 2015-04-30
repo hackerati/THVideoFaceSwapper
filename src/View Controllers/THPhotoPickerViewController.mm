@@ -157,21 +157,11 @@ UIImagePickerControllerDelegate>
         [MBProgressHUD hideHUDForView:self.view animated:YES];
         
         if ( self.shouldStartRecording ) {
-            [self.recorder startRecordingView:ofxiOSGetUIWindow() onCompletion:^(NSURL *fileOutput){
+            [self.recorder startRecordingView:ofxiOSGetGLParentView() onCompletion:^(NSURL *fileOutput){
                 [self.dataSource addSavedVideoNamed:fileOutput.lastPathComponent];
             }];
         }
     }];
-}
-
-- (void)movie:(UIImage *)image didFinishSavingWithError:(NSError *)err contextInfo:(void *)contextInfo
-{
-    if ( err ) {
-        NSLog(@"%@", err.localizedDescription);
-    }
-    else {
-        NSLog(@"SAVED MOVIE!!!");
-    }
 }
 
 - (NSString *)randomLoadingDetail
@@ -272,7 +262,7 @@ UIImagePickerControllerDelegate>
             else {
                 NSURL *movieURL = [NSURL fileURLWithPath:[self.dataSource movieFromDocumentDirectoryAtIndexPath:indexPath]];
                 MPMoviePlayerViewController *moviePlayerViewController = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
-                moviePlayerViewController.view.frame = self.view.frame;
+//                moviePlayerViewController.view.frame = self.view.frame;
                 [self presentMoviePlayerViewControllerAnimated:moviePlayerViewController];
             }
             
@@ -291,7 +281,7 @@ UIImagePickerControllerDelegate>
             
             if ( pointIndexPath ) {
                 
-                if ( pointIndexPath.section == 1 ) { // should only be able to delete saved images taken via camera
+                if ( pointIndexPath.section != 0 ) { // should only be able to delete saved images and videos taken via camera
                     
                     THFacePickerCollectionViewCell *selectedCell = (THFacePickerCollectionViewCell *)[self.facesCollectionView cellForItemAtIndexPath:pointIndexPath];
                     [selectedCell highlightSelected:!selectedCell.highlightSelected];
