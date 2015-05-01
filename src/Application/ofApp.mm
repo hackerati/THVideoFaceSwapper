@@ -37,6 +37,11 @@ void ofApp::setup(){
     }
     
     colorCv.allocate(cam.getWidth(), cam.getHeight());
+    
+    videoRecorder = ofxiOSVideoWriter();
+    videoRecorder.setup(ofGetWidth(), ofGetHeight());
+    videoRecorder.setFPS(30);
+    
 }
 
 //--------------------------------------------------------------
@@ -209,6 +214,10 @@ void ofApp::touchUp(ofTouchEventArgs & touch){
 
 //--------------------------------------------------------------
 void ofApp::touchDoubleTap(ofTouchEventArgs & touch){
+    if ( videoRecorder.isRecording() ) {
+        videoRecorder.finishRecording();
+    }
+    
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:photoPicker];
     UIViewController *vc = (UIViewController *)ofxiOSGetViewController();
     [vc presentViewController:navController animated:YES completion:^{

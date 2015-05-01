@@ -8,6 +8,7 @@
 #include "Clone.h"
 #include "ofxFaceTracker.h"
 #include "ofxFaceTrackerThreaded.h"
+#include "ofxiOSVideoWriter.h"
 
 #include "THPhotoPickerViewController.h"
 
@@ -42,6 +43,8 @@ public:
     ofVideoGrabber cam;
     ofxCvColorImage colorCv;
     ofxCvColorImage srcColorCv;
+    ofxiOSVideoWriter videoRecorder;
+    ofxiOSVideoPlayer videoPlayer;
     
     ofxFaceTracker srcTracker;
     ofImage src;

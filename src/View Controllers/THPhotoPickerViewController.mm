@@ -38,6 +38,8 @@ UIImagePickerControllerDelegate>
 @property (nonatomic) UIButton *deleteButton;
 @property (nonatomic) UIImage *takenPhoto;
 
+@property (assign, nonatomic) BOOL shouldStartRecording;
+
 @end
 
 @implementation THPhotoPickerViewController
@@ -47,6 +49,8 @@ UIImagePickerControllerDelegate>
     self = [super init];
     if ( self ) {
         mainApp = (ofApp *)ofGetAppPtr();
+        _shouldStartRecording = NO;
+        
         self.title = kTHFacePickerViewControllerTitle;
     }
     return self;
@@ -58,7 +62,10 @@ UIImagePickerControllerDelegate>
     self.navigationItem.leftBarButtonItem = dismissButton;
     
     UIBarButtonItem *cameraButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"camera"] style:UIBarButtonItemStylePlain target:self action:@selector(presentCameraPicker)];
-    self.navigationItem.rightBarButtonItem = cameraButton;
+    
+    UIBarButtonItem *recordButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"record"] style:UIBarButtonItemStylePlain target:self action:@selector(startRecording)];
+    
+    self.navigationItem.rightBarButtonItems = @[recordButton, cameraButton];
 }
 
 - (void)setupDeleteButton
@@ -131,6 +138,10 @@ UIImagePickerControllerDelegate>
     mainApp->setupCam([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.width);
     [self.navigationController dismissViewControllerAnimated:YES completion:^{
         [MBProgressHUD hideHUDForView:self.view animated:YES];
+        
+        if ( self.shouldStartRecording ) {
+            mainApp->videoRecorder.startRecording();
+        }
     }];
 }
 
@@ -297,6 +308,13 @@ UIImagePickerControllerDelegate>
 }
 
 #pragma mark - UIButton Selectors
+
+
+- (void)startRecording
+{
+    self.shouldStartRecording = YES;
+    [self dismissVC];
+}
 
 - (void)deleteSelectedItems
 {
