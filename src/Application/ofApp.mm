@@ -42,6 +42,8 @@ void ofApp::setup(){
     videoRecorder.setup(ofGetWidth(), ofGetHeight());
     videoRecorder.setFPS(30);
     
+//    videoPlayer = ofxiOSVideoPlayer();
+    
 }
 
 //--------------------------------------------------------------

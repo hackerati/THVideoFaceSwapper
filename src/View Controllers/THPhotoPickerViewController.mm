@@ -6,6 +6,8 @@
 //
 //
 
+#import <MediaPlayer/MediaPlayer.h>
+
 #import "THPhotoPickerViewController.h"
 #include "ofApp.h"
 
@@ -38,7 +40,7 @@ UIImagePickerControllerDelegate>
 @property (nonatomic) UIButton *deleteButton;
 @property (nonatomic) UIImage *takenPhoto;
 
-@property (assign, nonatomic) BOOL shouldStartRecording;
+@property (nonatomic) BOOL shouldStartRecording;
 
 @end
 
@@ -63,9 +65,9 @@ UIImagePickerControllerDelegate>
     
     UIBarButtonItem *cameraButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"camera"] style:UIBarButtonItemStylePlain target:self action:@selector(presentCameraPicker)];
     
-    UIBarButtonItem *recordButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"record"] style:UIBarButtonItemStylePlain target:self action:@selector(startRecording)];
+    UIBarButtonItem *recordButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"record"] style:UIBarButtonItemStylePlain target:self action:@selector(recordVideo)];
     
-    self.navigationItem.rightBarButtonItems = @[recordButton, cameraButton];
+    self.navigationItem.rightBarButtonItems = @[cameraButton, recordButton];
 }
 
 - (void)setupDeleteButton
@@ -123,6 +125,12 @@ UIImagePickerControllerDelegate>
     [self setupCollectionView];
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.shouldStartRecording = NO;
+}
+
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
@@ -143,16 +151,6 @@ UIImagePickerControllerDelegate>
             mainApp->videoRecorder.startRecording();
         }
     }];
-}
-
-- (void)presentCameraPicker
-{
-    UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
-    imagePicker.delegate = self;
-    imagePicker.allowsEditing = NO;
-    imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
-    
-    [self.navigationController presentViewController:imagePicker animated:YES completion:nil];
 }
 
 - (NSString *)randomLoadingDetail
@@ -233,21 +231,35 @@ UIImagePickerControllerDelegate>
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self showLoadingHUD];
+    if ( indexPath.section < 2 ) {
+        [self showLoadingHUD];
+    }
     
     dispatch_async(dispatch_queue_create("imageLoadingQueue", NULL), ^{
         dispatch_async(dispatch_get_main_queue(), ^{
             if ( indexPath.section == 0 ) {
                 mainApp->loadFace(mainApp->faces.getPath(indexPath.row));
+                [self dismissVC];
             }
-            else {
+            else if ( indexPath.section == 1 ) {
                 NSString *imageName = [self.dataSource savedImageNameAtIndexPath:indexPath];
                 ofImage savedImage;
                 ofxiOSUIImageToOFImage([self.dataSource imageFromDocumentsDirectoryNamed:imageName], savedImage);
                 mainApp->loadOFImage(savedImage);
+                [self dismissVC];
+            }
+            else {
+                NSURL *movieURL = [NSURL fileURLWithPath:[self.dataSource movieFromDocumentDirectoryAtIndexPath:indexPath]];
+                NSLog(@"%@", movieURL);
+//                mainApp->videoPlayer.loadMovie([[self.dataSource movieFromDocumentDirectoryAtIndexPath:indexPath] UTF8String]);
+//                mainApp->videoPlayer.setLoopState(OF_LOOP_NORMAL);
+//                mainApp->videoPlayer.setPosition(0.0);
+//                videoPlayer0.play();
+//                mainApp->videoPlayer.play();
+                MPMoviePlayerViewController *moviePlayerViewController = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
+                [self presentMoviePlayerViewControllerAnimated:moviePlayerViewController];
             }
             
-            [self dismissVC];
         });
     });
 }
@@ -263,7 +275,7 @@ UIImagePickerControllerDelegate>
             
             if ( pointIndexPath ) {
                 
-                if ( pointIndexPath.section == 1 ) { // should only be able to delete saved images taken via camera
+                if ( pointIndexPath.section != 0 ) { // should only be able to delete saved images and videos taken via camera
                     
                     THFacePickerCollectionViewCell *selectedCell = (THFacePickerCollectionViewCell *)[self.facesCollectionView cellForItemAtIndexPath:pointIndexPath];
                     [selectedCell highlightSelected:!selectedCell.highlightSelected];
@@ -309,11 +321,14 @@ UIImagePickerControllerDelegate>
 
 #pragma mark - UIButton Selectors
 
-
-- (void)startRecording
+- (void)presentCameraPicker
 {
-    self.shouldStartRecording = YES;
-    [self dismissVC];
+    UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
+    imagePicker.delegate = self;
+    imagePicker.allowsEditing = NO;
+    imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+    
+    [self.navigationController presentViewController:imagePicker animated:YES completion:nil];
 }
 
 - (void)deleteSelectedItems
@@ -321,6 +336,12 @@ UIImagePickerControllerDelegate>
     [self.dataSource deleteSelectedItems:^{
         [self showDeleteButton:NO];
     }];
+}
+
+- (void)recordVideo
+{
+    self.shouldStartRecording = YES;
+    [self dismissVC];
 }
 
 @end

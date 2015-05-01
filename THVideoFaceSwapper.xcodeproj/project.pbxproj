@@ -18,6 +18,7 @@
 		01D89AC81AF3E1C900A4192B /* ofxiOSVideoWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 01D89AC51AF3E1C900A4192B /* ofxiOSVideoWriter.mm */; };
 		01D89AC91AF3E1C900A4192B /* VideoWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D89AC71AF3E1C900A4192B /* VideoWriter.m */; };
 		01D89ACD1AF3E55E00A4192B /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D89ACB1AF3E53400A4192B /* AssetsLibrary.framework */; };
+		01D89AD21AF3E7B200A4192B /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D89AD01AF3E79B00A4192B /* MediaPlayer.framework */; };
 		091CD626FECB03B3A6B3A1B2 /* PAW.cc in Sources */ = {isa = PBXBuildFile; fileRef = 04BD78075F8C2DEC76B2F33A /* PAW.cc */; };
 		10B69DE456AED1288FC9316B /* Tracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A810DF70319A10353588F5DB /* Tracker.cpp */; };
 		169D3C72FDE6C5590A1616F5 /* ofxCvFloatImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B6A03390302D5A2C9F0E4AB /* ofxCvFloatImage.cpp */; };
@@ -114,6 +115,7 @@
 		01D89AC61AF3E1C900A4192B /* VideoWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoWriter.h; sourceTree = "<group>"; };
 		01D89AC71AF3E1C900A4192B /* VideoWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoWriter.m; sourceTree = "<group>"; };
 		01D89ACB1AF3E53400A4192B /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
+		01D89AD01AF3E79B00A4192B /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		01DAE5C2E3E0A74207B2BE49 /* saving.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = saving.h; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/saving.h; sourceTree = SOURCE_ROOT; };
 		03A75A648BC4CF1D9DEDD0CE /* Flow.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = Flow.cpp; path = ../../../addons/ofxCv/libs/ofxCv/src/Flow.cpp; sourceTree = SOURCE_ROOT; };
 		04BD78075F8C2DEC76B2F33A /* PAW.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = PAW.cc; path = ../../../addons/ofxFaceTracker/libs/FaceTracker/src/lib/PAW.cc; sourceTree = SOURCE_ROOT; };
@@ -297,6 +299,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01D89AD21AF3E7B200A4192B /* MediaPlayer.framework in Frameworks */,
 				01D89ACD1AF3E55E00A4192B /* AssetsLibrary.framework in Frameworks */,
 				E41D421413B3A95300A75A5D /* libofxiOS_iphoneos_Debug.a in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
@@ -539,6 +542,7 @@
 		29B97323FDCFA39411CA2CEA /* core frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				01D89AD01AF3E79B00A4192B /* MediaPlayer.framework */,
 				01D89ACB1AF3E53400A4192B /* AssetsLibrary.framework */,
 				E41D400613B39D2100A75A5D /* AVFoundation.framework */,
 				E41D400713B39D2100A75A5D /* CoreMedia.framework */,
