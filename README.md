@@ -1,7 +1,7 @@
 # THVideoFaceSwapper
 Live video face swapping on iOS. Choose a face from the preloaded faces, or take one yourself!
 
-![Demo](https://github.com/thehackerati/THVideoFaceSwapper/face-swapper-vid.gif)
+![Demo](https://github.com/thehackerati/THVideoFaceSwapper/blob/develop/face-swapper-vid.gif)
 
 #Building and Running the App
 The header search path for the openFramework libs should 3 levels up from this project (`../../..`). Saving this repo within `~/path/to/openFrameworks/apps/myApps/` and building and running the app will most likely work unless you've configured your openFrameoworks directory differently. 
