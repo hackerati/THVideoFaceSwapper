@@ -9,7 +9,7 @@
 #include "ofxFaceTracker.h"
 #include "ofxFaceTrackerThreaded.h"
 
-#include "FSPhotoPickerViewController.h"
+#include "THPhotoPickerViewController.h"
 
 using namespace ofxCv;
 using namespace cv;
@@ -52,7 +52,6 @@ public:
     ofFbo srcFbo, maskFbo;
     
     ofDirectory faces;
-    int currentFace;
 };
 
 

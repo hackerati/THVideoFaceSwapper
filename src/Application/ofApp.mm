@@ -1,28 +1,20 @@
 #include "ofApp.h"
 
-FSPhotoPickerViewController *photoPicker;
-NSMutableArray *facesArray;
+THPhotoPickerViewController *photoPicker;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    cout << ofxiOSGetUIWindow().bounds.size.width << " : " << ofxiOSGetUIWindow().bounds.size.height << endl;
     faces.allowExt("jpg");
+    faces.allowExt("jpeg");
     faces.allowExt("png");
     faces.open("faces/");
     faces.listDir();
-    currentFace = 0;
-    
-    facesArray = [NSMutableArray array];
-    if(faces.size() != 0){
-        for (int i = 0; i < faces.size(); i++) {
-            NSString *pathToCurrentFace = [NSString stringWithCString:faces.getPath(i).c_str()
-                                                             encoding:[NSString defaultCStringEncoding]];
-            [facesArray addObject:pathToCurrentFace];
-        }
-    }
-    photoPicker = [[FSPhotoPickerViewController alloc] initWithFaces:facesArray];
     
     ofSetVerticalSync(true);
     cloneReady = false;
+    
+    photoPicker = [[THPhotoPickerViewController alloc] init];
     
     int screenWidth = [UIScreen mainScreen].bounds.size.width;
     int screenHeight = [UIScreen mainScreen].bounds.size.height;
@@ -40,7 +32,9 @@ void ofApp::setup(){
     srcTracker.setIterations(15);
     srcTracker.setAttempts(4);
     
-    loadFace("faces/Barack_Obama,_official_photo_portrait,_111th_Congress.jpg");
+    if ( faces.size() > 0 ) {
+        loadFace(faces.getPath(0));
+    }
     
     colorCv.allocate(cam.getWidth(), cam.getHeight());
 }
@@ -147,35 +141,47 @@ void ofApp::loadFace(string face){
 
 void ofApp::loadOFImage(ofImage input) {
     
-//    dispatch_async(dispatch_get_main_queue(), ^{
-        cloneReady = false;
-        src.clear();
-        srcPoints.clear();
-        srcTracker.setup();
-//    });
+    cloneReady = false;
+    src.clear();
+    srcPoints.clear();
+    srcTracker.setup();
     
     if(input.getWidth() > 0) {
         
         if(input.getWidth() > input.getHeight()){
+            
             input.resize(ofGetWidth(), input.getHeight()*ofGetWidth() /input.getWidth());
         }
         else{
+            
             input.resize(input.getWidth()*ofGetHeight()/input.getHeight(), ofGetHeight());
         }
         
-//        dispatch_async(dispatch_get_main_queue(), ^{
-            src = input;
-            srcTracker.update(toCv(input));
-            srcPoints = srcTracker.getImagePoints();
-            cloneReady = true;
-//        });
+        src = input;
+        Mat cvImage = toCv(input);
+        srcTracker.update(cvImage);
+        srcPoints = srcTracker.getImagePoints();
+        cloneReady = true;
     }
 }
 
 void ofApp::setupCam(int width, int height) {
+    
     cam.setDesiredFrameRate(24);
-    cam.setDeviceID(1); // front facing camera
+    
+    if ( cam.listDevices().size() > 1 ) {
+        cam.setDeviceID(1); // front facing camera
+    }
+    else {
+        cam.setDeviceID(0); // rear facing camera
+    }
+    
     cam.initGrabber(width, height);
+
+    
+    if ( !camTracker.isThreadRunning() ) {
+        camTracker.startThread();
+    }
 }
 
 void ofApp::dragEvent(ofDragInfo dragInfo) {
@@ -204,7 +210,11 @@ void ofApp::touchUp(ofTouchEventArgs & touch){
 //--------------------------------------------------------------
 void ofApp::touchDoubleTap(ofTouchEventArgs & touch){
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:photoPicker];
-    [ofxiOSGetViewController() presentViewController:navController animated:YES completion:nil];
+    UIViewController *vc = (UIViewController *)ofxiOSGetViewController();
+    [vc presentViewController:navController animated:YES completion:^{
+        cam.close();
+        camTracker.stopThread();
+    }];
 }
 
 //--------------------------------------------------------------

@@ -1,6 +1,8 @@
 # THVideoFaceSwapper
 Live video face swapping on iOS. Choose a face from the preloaded faces, or take one yourself!
 
+![Demo](http://i.imgur.com/ERkEh9e.gif)
+
 #Building and Running the App
 The header search path for the openFramework libs should 3 levels up from this project (`../../..`). Saving this repo within `~/path/to/openFrameworks/apps/myApps/` and building and running the app will most likely work unless you've configured your openFrameoworks directory differently. 
 
@@ -14,4 +16,7 @@ This will exclude all of the openFramework Groups.
 
 #Other Notes
 ###Adding Faces
-Faces go into `bin/data/faces/` as a JPEG or PNG
+Faces go into `bin/data/faces/` as a JPG, JPEG or PNG
+
+###Maydayfile
+Adds supplemental warnings and errors to your Xcode project via regex. For more info see [mayday](https://github.com/marklarr/mayday)
