@@ -15,6 +15,8 @@
 		0158DAB61AE827F600DCAB2F /* UIImage+Decode.m in Sources */ = {isa = PBXBuildFile; fileRef = 0158DAB51AE827F600DCAB2F /* UIImage+Decode.m */; };
 		019CEF0C1AEEA8F60036864A /* THFacesCollectionViewDataSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 019CEF0B1AEEA8F60036864A /* THFacesCollectionViewDataSource.mm */; };
 		01B2F1501AE6977E00B5E69A /* THFacePickerCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 01B2F14F1AE6977E00B5E69A /* THFacePickerCollectionViewCell.m */; };
+		01D89AC81AF3E1C900A4192B /* ofxiOSVideoWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 01D89AC51AF3E1C900A4192B /* ofxiOSVideoWriter.mm */; };
+		01D89AC91AF3E1C900A4192B /* VideoWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D89AC71AF3E1C900A4192B /* VideoWriter.m */; };
 		091CD626FECB03B3A6B3A1B2 /* PAW.cc in Sources */ = {isa = PBXBuildFile; fileRef = 04BD78075F8C2DEC76B2F33A /* PAW.cc */; };
 		10B69DE456AED1288FC9316B /* Tracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A810DF70319A10353588F5DB /* Tracker.cpp */; };
 		169D3C72FDE6C5590A1616F5 /* ofxCvFloatImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B6A03390302D5A2C9F0E4AB /* ofxCvFloatImage.cpp */; };
@@ -106,6 +108,10 @@
 		019CEF0B1AEEA8F60036864A /* THFacesCollectionViewDataSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = THFacesCollectionViewDataSource.mm; sourceTree = "<group>"; };
 		01B2F14E1AE6977E00B5E69A /* THFacePickerCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = THFacePickerCollectionViewCell.h; sourceTree = "<group>"; };
 		01B2F14F1AE6977E00B5E69A /* THFacePickerCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = THFacePickerCollectionViewCell.m; sourceTree = "<group>"; };
+		01D89AC41AF3E1C900A4192B /* ofxiOSVideoWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxiOSVideoWriter.h; sourceTree = "<group>"; };
+		01D89AC51AF3E1C900A4192B /* ofxiOSVideoWriter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ofxiOSVideoWriter.mm; sourceTree = "<group>"; };
+		01D89AC61AF3E1C900A4192B /* VideoWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoWriter.h; sourceTree = "<group>"; };
+		01D89AC71AF3E1C900A4192B /* VideoWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoWriter.m; sourceTree = "<group>"; };
 		01DAE5C2E3E0A74207B2BE49 /* saving.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = saving.h; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/saving.h; sourceTree = SOURCE_ROOT; };
 		03A75A648BC4CF1D9DEDD0CE /* Flow.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = Flow.cpp; path = ../../../addons/ofxCv/libs/ofxCv/src/Flow.cpp; sourceTree = SOURCE_ROOT; };
 		04BD78075F8C2DEC76B2F33A /* PAW.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = PAW.cc; path = ../../../addons/ofxFaceTracker/libs/FaceTracker/src/lib/PAW.cc; sourceTree = SOURCE_ROOT; };
@@ -382,6 +388,26 @@
 				010F07091AE5840D00551A18 /* Clone.h */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		01D89AC21AF3E1B500A4192B /* ofxVideoWriter */ = {
+			isa = PBXGroup;
+			children = (
+				01D89AC31AF3E1C900A4192B /* src */,
+			);
+			name = ofxVideoWriter;
+			sourceTree = "<group>";
+		};
+		01D89AC31AF3E1C900A4192B /* src */ = {
+			isa = PBXGroup;
+			children = (
+				01D89AC41AF3E1C900A4192B /* ofxiOSVideoWriter.h */,
+				01D89AC51AF3E1C900A4192B /* ofxiOSVideoWriter.mm */,
+				01D89AC61AF3E1C900A4192B /* VideoWriter.h */,
+				01D89AC71AF3E1C900A4192B /* VideoWriter.m */,
+			);
+			name = src;
+			path = ../../../addons/ofxiOSVideoWriter/src;
 			sourceTree = "<group>";
 		};
 		0478E60892BF4C0731AE0763 /* ts */ = {
@@ -767,6 +793,7 @@
 		BB16F26B0F2B646B00518274 /* addons */ = {
 			isa = PBXGroup;
 			children = (
+				01D89AC21AF3E1B500A4192B /* ofxVideoWriter */,
 				A0B90D3B0ADB9C1716816714 /* ofxOpenCv */,
 				6025FAF6414C2CA589764D26 /* ofxCv */,
 				2B86176FA97BFB2BEE1F2F83 /* ofxFaceTracker */,
@@ -1077,8 +1104,10 @@
 				169D3C72FDE6C5590A1616F5 /* ofxCvFloatImage.cpp in Sources */,
 				FB09C6B2A1DA0EA217240CB8 /* ofxCvGrayscaleImage.cpp in Sources */,
 				E212C821D1064B92DD953A42 /* ofxCvHaarFinder.cpp in Sources */,
+				01D89AC91AF3E1C900A4192B /* VideoWriter.m in Sources */,
 				63020F16C7E8DED980111241 /* ofxCvImage.cpp in Sources */,
 				D3301F6A0B43BB293ED97C1D /* ofxCvShortImage.cpp in Sources */,
+				01D89AC81AF3E1C900A4192B /* ofxiOSVideoWriter.mm in Sources */,
 				B6840996567E78436F7ECFAB /* ETF.cpp in Sources */,
 				F76B4A79BD8DE4854141CB47 /* fdog.cpp in Sources */,
 				010F070E1AE5840D00551A18 /* Clone.cpp in Sources */,
