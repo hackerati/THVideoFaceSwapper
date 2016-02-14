@@ -361,8 +361,8 @@
 			isa = PBXGroup;
 			children = (
 				E4D8936B11527B74007E1F53 /* main.mm */,
-				E4D8936D11527B74007E1F53 /* ofApp.mm */,
 				E4D8936C11527B74007E1F53 /* ofApp.h */,
+				E4D8936D11527B74007E1F53 /* ofApp.mm */,
 			);
 			path = Application;
 			sourceTree = "<group>";
@@ -390,7 +390,7 @@
 				7673F0AA19794A4C9517CF14 /* ts.hpp */,
 				C4FB85020773DA0F09B8B6CE /* ts_gtest.h */,
 			);
-			name = ts;
+			path = ts;
 			sourceTree = "<group>";
 		};
 		0F07FE174552DEF007BF5AD5 /* opencv2 */ = {
@@ -407,11 +407,11 @@
 				961A625BD21068033782887C /* legacy */,
 				0F288FD421D474F4AE2684D3 /* ml */,
 				D0CAFE48EE488EEED9149670 /* objdetect */,
-				9B7D592E7AB311451A27C46E /* opencv.hpp */,
 				0478E60892BF4C0731AE0763 /* ts */,
 				C58CC92A5283B95AA31D50FB /* video */,
+				9B7D592E7AB311451A27C46E /* opencv.hpp */,
 			);
-			name = opencv2;
+			path = opencv2;
 			sourceTree = "<group>";
 		};
 		0F288FD421D474F4AE2684D3 /* ml */ = {
@@ -419,7 +419,7 @@
 			children = (
 				59626D03C690200AD4E8B3A6 /* ml.hpp */,
 			);
-			name = ml;
+			path = ml;
 			sourceTree = "<group>";
 		};
 		13C72B31738CA9F68523CB1C /* include */ = {
@@ -427,7 +427,7 @@
 			children = (
 				4EB038C7DF921AA8A4070286 /* ofxCv */,
 			);
-			name = include;
+			path = include;
 			sourceTree = "<group>";
 		};
 		170C3384C93B182490DDC9CC /* contrib */ = {
@@ -436,7 +436,7 @@
 				5A59183C98FC5E69FC90F138 /* contrib.hpp */,
 				A0399084868E7CAFB7E3D8E9 /* retina.hpp */,
 			);
-			name = contrib;
+			path = contrib;
 			sourceTree = "<group>";
 		};
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
@@ -487,22 +487,22 @@
 				45F38573A0B0DEEC8BBC7A2C /* simplex_downhill.h */,
 				1E95EFD35ED9C5D97F2F015E /* timer.h */,
 			);
-			name = flann;
+			path = flann;
 			sourceTree = "<group>";
 		};
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				678E130917951536005B6D19 /* Icon.png */,
-				678E130717951530005B6D19 /* Icon@2x.png */,
-				678E130B1795153C005B6D19 /* Default.png */,
-				678E130D17951540005B6D19 /* Default@2x.png */,
-				678E130F17951549005B6D19 /* Default-568h@2x~iphone.png */,
-				E4D8936A11527B74007E1F53 /* src */,
-				BB24E1F710DAA51900E9C588 /* openFrameworks */,
+				19C28FACFE9D520D11CA2CBB /* Products */,
 				BB16F26B0F2B646B00518274 /* addons */,
 				BB16E9930F2B1E5900518274 /* libs */,
-				19C28FACFE9D520D11CA2CBB /* Products */,
+				BB24E1F710DAA51900E9C588 /* openFrameworks */,
+				E4D8936A11527B74007E1F53 /* src */,
+				678E130F17951549005B6D19 /* Default-568h@2x~iphone.png */,
+				678E130B1795153C005B6D19 /* Default.png */,
+				678E130D17951540005B6D19 /* Default@2x.png */,
+				678E130917951536005B6D19 /* Icon.png */,
+				678E130717951530005B6D19 /* Icon@2x.png */,
 			);
 			name = CustomTemplate;
 			sourceTree = "<group>";
@@ -511,29 +511,28 @@
 			isa = PBXGroup;
 			children = (
 				E41D400613B39D2100A75A5D /* AVFoundation.framework */,
-				E41D400713B39D2100A75A5D /* CoreMedia.framework */,
-				E41D400813B39D2100A75A5D /* CoreVideo.framework */,
-				E41D400913B39D2100A75A5D /* MapKit.framework */,
-				53F323EA10A20EDB00E0DAE4 /* OpenAL.framework */,
-				E4A823A312561BE3002F86A2 /* CoreGraphics.framework */,
 				BBE5EAB70F49AD8400F28951 /* AudioToolbox.framework */,
-				BB16EBD80F2B2AB500518274 /* QuartzCore.framework */,
-				BB16EBD10F2B2A9500518274 /* OpenGLES.framework */,
-				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
-				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				288765FC0DF74451002DB57D /* CoreGraphics.framework */,
 				5326AEA710A23A0500278DE6 /* CoreLocation.framework */,
+				E41D400713B39D2100A75A5D /* CoreMedia.framework */,
+				E41D400813B39D2100A75A5D /* CoreVideo.framework */,
+				1D30AB110D05D00D00671497 /* Foundation.framework */,
+				E41D400913B39D2100A75A5D /* MapKit.framework */,
+				53F323EA10A20EDB00E0DAE4 /* OpenAL.framework */,
+				BB16EBD10F2B2A9500518274 /* OpenGLES.framework */,
+				BB16EBD80F2B2AB500518274 /* QuartzCore.framework */,
+				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 			);
-			name = "core frameworks";
+			path = "core frameworks";
 			sourceTree = "<group>";
 		};
 		2B86176FA97BFB2BEE1F2F83 /* ofxFaceTracker */ = {
 			isa = PBXGroup;
 			children = (
-				EE1E8A73C6C6A1D433F5FA51 /* src */,
 				96E8AB44895C3D65BDB04141 /* libs */,
+				EE1E8A73C6C6A1D433F5FA51 /* src */,
 			);
-			name = ofxFaceTracker;
+			path = ofxFaceTracker;
 			sourceTree = "<group>";
 		};
 		37CF39B443ACB0F86B1351ED /* src */ = {
@@ -542,7 +541,7 @@
 				B047FF96258DC01792B272DB /* ETF.cpp */,
 				A2D8249D46647E3C51769CDE /* fdog.cpp */,
 			);
-			name = src;
+			path = src;
 			sourceTree = "<group>";
 		};
 		3E44059DCBC2444D65660B9C /* imgproc */ = {
@@ -552,7 +551,7 @@
 				9B55998E41388AD8704E4F9A /* imgproc_c.h */,
 				9B90B3EE60497170AA00BFE8 /* types_c.h */,
 			);
-			name = imgproc;
+			path = imgproc;
 			sourceTree = "<group>";
 		};
 		428EB732FD42504F37BCA78A /* calib3d */ = {
@@ -560,7 +559,7 @@
 			children = (
 				67AF0E794FA186DD25454CC9 /* calib3d.hpp */,
 			);
-			name = calib3d;
+			path = calib3d;
 			sourceTree = "<group>";
 		};
 		45591C11B7434576DF6996B4 /* include */ = {
@@ -568,7 +567,7 @@
 			children = (
 				FEA273413D5AFD9607F56ABE /* CLD */,
 			);
-			name = include;
+			path = include;
 			sourceTree = "<group>";
 		};
 		4EB038C7DF921AA8A4070286 /* ofxCv */ = {
@@ -586,7 +585,7 @@
 				84D3470A12DEE51F320224AC /* Utilities.h */,
 				73157AAE32787C63313C7D8E /* Wrappers.h */,
 			);
-			name = ofxCv;
+			path = ofxCv;
 			sourceTree = "<group>";
 		};
 		5236346776DB8ECC4B121CA3 /* gpu */ = {
@@ -598,16 +597,16 @@
 				B683B7ADA51410A7F0B13E6A /* matrix_operations.hpp */,
 				D902EB2409214285BCF5F191 /* stream_accessor.hpp */,
 			);
-			name = gpu;
+			path = gpu;
 			sourceTree = "<group>";
 		};
 		6025FAF6414C2CA589764D26 /* ofxCv */ = {
 			isa = PBXGroup;
 			children = (
-				873F2BD1A608B2DE7BC81AFB /* src */,
 				90D509C72729D1998E28A98F /* libs */,
+				873F2BD1A608B2DE7BC81AFB /* src */,
 			);
-			name = ofxCv;
+			path = ofxCv;
 			sourceTree = "<group>";
 		};
 		737B033AA777B67BA4F8F4D2 /* opencv */ = {
@@ -625,7 +624,7 @@
 				9FF9126184DFBDE8A912373E /* highgui.h */,
 				7C3D9C0EAC738ED2624D264B /* ml.h */,
 			);
-			name = opencv;
+			path = opencv;
 			sourceTree = "<group>";
 		};
 		74312553B85B0FAC32207F8A /* lib */ = {
@@ -635,12 +634,12 @@
 				C415F439B09BAEBA3FB3710F /* FCheck.cc */,
 				CF243F4577A116D71116C5C8 /* FDet.cc */,
 				D0FB15518FE16B361D561235 /* IO.cc */,
-				3769B74412282AEFEBDD8C86 /* Patch.cc */,
 				04BD78075F8C2DEC76B2F33A /* PAW.cc */,
 				DAE0121070E51316AFDAA2AE /* PDM.cc */,
+				3769B74412282AEFEBDD8C86 /* Patch.cc */,
 				6B019CCE940383653B1DBB5B /* Tracker.cc */,
 			);
-			name = lib;
+			path = lib;
 			sourceTree = "<group>";
 		};
 		7CC1E591490DB083FB916812 /* CLD */ = {
@@ -649,7 +648,7 @@
 				45591C11B7434576DF6996B4 /* include */,
 				37CF39B443ACB0F86B1351ED /* src */,
 			);
-			name = CLD;
+			path = CLD;
 			sourceTree = "<group>";
 		};
 		85961BEC127E2550AA7756C9 /* ofxCv */ = {
@@ -658,7 +657,7 @@
 				13C72B31738CA9F68523CB1C /* include */,
 				D240A1DD1AE9F8E81BDBCD2B /* src */,
 			);
-			name = ofxCv;
+			path = ofxCv;
 			sourceTree = "<group>";
 		};
 		86FEC009E2721D0FB23338D7 /* features2d */ = {
@@ -666,7 +665,7 @@
 			children = (
 				61339778C58D921474B5729E /* features2d.hpp */,
 			);
-			name = features2d;
+			path = features2d;
 			sourceTree = "<group>";
 		};
 		873F2BD1A608B2DE7BC81AFB /* src */ = {
@@ -674,7 +673,7 @@
 			children = (
 				325BD94FFB93161BBC68336E /* ofxCv.h */,
 			);
-			name = src;
+			path = src;
 			sourceTree = "<group>";
 		};
 		8B6D45C09E1EE5AA0A7EC645 /* FaceTracker */ = {
@@ -683,7 +682,7 @@
 				FA7DE18CAD263BF5D191DB1B /* include */,
 				EE7AB71CA23FB7FF1C5A1E69 /* src */,
 			);
-			name = FaceTracker;
+			path = FaceTracker;
 			sourceTree = "<group>";
 		};
 		90D509C72729D1998E28A98F /* libs */ = {
@@ -692,7 +691,7 @@
 				7CC1E591490DB083FB916812 /* CLD */,
 				85961BEC127E2550AA7756C9 /* ofxCv */,
 			);
-			name = libs;
+			path = libs;
 			sourceTree = "<group>";
 		};
 		961A625BD21068033782887C /* legacy */ = {
@@ -703,7 +702,7 @@
 				8530EAD600CD792B81B2E79D /* legacy.hpp */,
 				60179A75A6C5F9A54DA3A64C /* streams.hpp */,
 			);
-			name = legacy;
+			path = legacy;
 			sourceTree = "<group>";
 		};
 		96E8AB44895C3D65BDB04141 /* libs */ = {
@@ -711,7 +710,7 @@
 			children = (
 				8B6D45C09E1EE5AA0A7EC645 /* FaceTracker */,
 			);
-			name = libs;
+			path = libs;
 			sourceTree = "<group>";
 		};
 		9C99831C330874C2B245AB48 /* highgui */ = {
@@ -720,16 +719,16 @@
 				C61D3DACE506E4A1C3A6D782 /* highgui.hpp */,
 				AE433383D6CA170C418C8A9E /* highgui_c.h */,
 			);
-			name = highgui;
+			path = highgui;
 			sourceTree = "<group>";
 		};
 		A0B90D3B0ADB9C1716816714 /* ofxOpenCv */ = {
 			isa = PBXGroup;
 			children = (
-				C756CAAFD542831674E15FE6 /* src */,
 				DCC60D6724B56635AE867535 /* libs */,
+				C756CAAFD542831674E15FE6 /* src */,
 			);
-			name = ofxOpenCv;
+			path = ofxOpenCv;
 			sourceTree = "<group>";
 		};
 		A5A3A2F98919E2243C73199C /* core */ = {
@@ -745,7 +744,7 @@
 				E8AF1E9150AD818FA9D9195D /* version.hpp */,
 				A9C85208C7E45FB9D1926789 /* wimage.hpp */,
 			);
-			name = core;
+			path = core;
 			sourceTree = "<group>";
 		};
 		AAA97F42C2FE4A31ECFD0585 /* opencv */ = {
@@ -753,7 +752,7 @@
 			children = (
 				F9F05170CB9BDF47DA2B6E6A /* include */,
 			);
-			name = opencv;
+			path = opencv;
 			sourceTree = "<group>";
 		};
 		BB16E9930F2B1E5900518274 /* libs */ = {
@@ -761,29 +760,29 @@
 			children = (
 				BBE5E94E0F497BD800F28951 /* core */,
 			);
-			name = libs;
+			path = libs;
 			sourceTree = "<group>";
 		};
 		BB16F26B0F2B646B00518274 /* addons */ = {
 			isa = PBXGroup;
 			children = (
-				A0B90D3B0ADB9C1716816714 /* ofxOpenCv */,
 				6025FAF6414C2CA589764D26 /* ofxCv */,
 				2B86176FA97BFB2BEE1F2F83 /* ofxFaceTracker */,
+				A0B90D3B0ADB9C1716816714 /* ofxOpenCv */,
 			);
-			name = addons;
+			path = addons;
 			sourceTree = "<group>";
 		};
 		BB24E1F710DAA51900E9C588 /* openFrameworks */ = {
 			isa = PBXGroup;
 			children = (
-				E41D40FD13B3A0D800A75A5D /* iOS+OFLib.xcodeproj */,
-				32CA4F630368D1EE00C91783 /* ofxiOS_Prefix.pch */,
-				BB24DDC910DA781C00E9C588 /* ofxiOS-Info.plist */,
 				E41D3EE513B3906D00A75A5D /* CoreOF.xcconfig */,
 				E41D3ED613B38FB500A75A5D /* Project.xcconfig */,
+				E41D40FD13B3A0D800A75A5D /* iOS+OFLib.xcodeproj */,
+				BB24DDC910DA781C00E9C588 /* ofxiOS-Info.plist */,
+				32CA4F630368D1EE00C91783 /* ofxiOS_Prefix.pch */,
 			);
-			name = openFrameworks;
+			path = openFrameworks;
 			sourceTree = "<group>";
 		};
 		BBE5E94E0F497BD800F28951 /* core */ = {
@@ -791,7 +790,7 @@
 			children = (
 				29B97323FDCFA39411CA2CEA /* core frameworks */,
 			);
-			name = core;
+			path = core;
 			sourceTree = "<group>";
 		};
 		C58CC92A5283B95AA31D50FB /* video */ = {
@@ -801,7 +800,7 @@
 				E14D3EF03E140F5604900412 /* tracking.hpp */,
 				97FBD89E6180673035AD1083 /* video.hpp */,
 			);
-			name = video;
+			path = video;
 			sourceTree = "<group>";
 		};
 		C756CAAFD542831674E15FE6 /* src */ = {
@@ -825,7 +824,7 @@
 				DEA2EDC0AFD59176FDEDC222 /* ofxCvShortImage.h */,
 				CE81A5E39EB3C871FDF3D4D5 /* ofxOpenCv.h */,
 			);
-			name = src;
+			path = src;
 			sourceTree = "<group>";
 		};
 		D0CAFE48EE488EEED9149670 /* objdetect */ = {
@@ -833,7 +832,7 @@
 			children = (
 				97CFAD0B2F2DB004A8A3BC0B /* objdetect.hpp */,
 			);
-			name = objdetect;
+			path = objdetect;
 			sourceTree = "<group>";
 		};
 		D240A1DD1AE9F8E81BDBCD2B /* src */ = {
@@ -851,7 +850,7 @@
 				6CEC50DB3D06414010233963 /* Utilities.cpp */,
 				D347FB65D19015303863922A /* Wrappers.cpp */,
 			);
-			name = src;
+			path = src;
 			sourceTree = "<group>";
 		};
 		DCC60D6724B56635AE867535 /* libs */ = {
@@ -859,7 +858,7 @@
 			children = (
 				AAA97F42C2FE4A31ECFD0585 /* opencv */,
 			);
-			name = libs;
+			path = libs;
 			sourceTree = "<group>";
 		};
 		E41D40FE13B3A0D800A75A5D /* Products */ = {
@@ -873,13 +872,13 @@
 		E4D8936A11527B74007E1F53 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				019CEF091AEEA8E10036864A /* Data */,
+				019E69F31AE58715003A6A7A /* Application */,
 				0158DAB31AE827DA00DCAB2F /* Categories */,
+				019CEF091AEEA8E10036864A /* Data */,
 				019E69F51AE5872F003A6A7A /* Models */,
 				019E69F41AE5871A003A6A7A /* Resources */,
-				019E69F31AE58715003A6A7A /* Application */,
-				019E69F11AE5870B003A6A7A /* Views */,
 				019E69F01AE58703003A6A7A /* View Controllers */,
+				019E69F11AE5870B003A6A7A /* Views */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -891,12 +890,12 @@
 				5034E204517C46FCBAB26BB3 /* FCheck.h */,
 				4A520FABAFEBECF618A87D91 /* FDet.h */,
 				19660B42DF06415007708495 /* IO.h */,
-				E5ACB6B21FDA44C9B21F2B5D /* Patch.h */,
 				4ED0189D042D221948271DA2 /* PAW.h */,
 				C85A383D09885563499FA901 /* PDM.h */,
+				E5ACB6B21FDA44C9B21F2B5D /* Patch.h */,
 				E45FD4B5C40A57B52BBDF8FE /* Tracker.h */,
 			);
-			name = FaceTracker;
+			path = FaceTracker;
 			sourceTree = "<group>";
 		};
 		EE1E8A73C6C6A1D433F5FA51 /* src */ = {
@@ -910,7 +909,7 @@
 				9983B45C4BCBC6E62F11CA89 /* ofxFaceTracker.h */,
 				BC378899A000AA03D8319C6D /* ofxFaceTrackerThreaded.h */,
 			);
-			name = src;
+			path = src;
 			sourceTree = "<group>";
 		};
 		EE7AB71CA23FB7FF1C5A1E69 /* src */ = {
@@ -918,7 +917,7 @@
 			children = (
 				74312553B85B0FAC32207F8A /* lib */,
 			);
-			name = src;
+			path = src;
 			sourceTree = "<group>";
 		};
 		F9F05170CB9BDF47DA2B6E6A /* include */ = {
@@ -927,7 +926,7 @@
 				737B033AA777B67BA4F8F4D2 /* opencv */,
 				0F07FE174552DEF007BF5AD5 /* opencv2 */,
 			);
-			name = include;
+			path = include;
 			sourceTree = "<group>";
 		};
 		FA7DE18CAD263BF5D191DB1B /* include */ = {
@@ -935,7 +934,7 @@
 			children = (
 				E98B41DCE24F6EE3FAFB16AE /* FaceTracker */,
 			);
-			name = include;
+			path = include;
 			sourceTree = "<group>";
 		};
 		FEA273413D5AFD9607F56ABE /* CLD */ = {
@@ -946,7 +945,7 @@
 				DB0CD4C938C079DCD67222FE /* imatrix.h */,
 				FE15469185A3A49FEC9D2292 /* myvec.h */,
 			);
-			name = CLD;
+			path = CLD;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1129,8 +1128,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = ofxiOS_Prefix.pch;
-				INFOPLIST_FILE = "ofxiOS-Info.plist";
+				GCC_PREFIX_HEADER = openFrameworks/ofxiOS_Prefix.pch;
+				INFOPLIST_FILE = "openFrameworks/ofxiOS-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				VALID_ARCHS = "armv6 armv7";
@@ -1142,8 +1141,8 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = ofxiOS_Prefix.pch;
-				INFOPLIST_FILE = "ofxiOS-Info.plist";
+				GCC_PREFIX_HEADER = openFrameworks/ofxiOS_Prefix.pch;
+				INFOPLIST_FILE = "openFrameworks/ofxiOS-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				VALID_ARCHS = "armv6 armv7";
