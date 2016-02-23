@@ -449,7 +449,7 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
 - (void)setupLabels {
 	label = [[UILabel alloc] initWithFrame:self.bounds];
 	label.adjustsFontSizeToFitWidth = NO;
-	label.textAlignment = MBLabelAlignmentCenter;
+	label.textAlignment = NSTextAlignmentCenter;
 	label.opaque = NO;
 	label.backgroundColor = [UIColor clearColor];
 	label.textColor = self.labelColor;
@@ -460,7 +460,7 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
 	detailsLabel = [[UILabel alloc] initWithFrame:self.bounds];
 	detailsLabel.font = self.detailsLabelFont;
 	detailsLabel.adjustsFontSizeToFitWidth = NO;
-	detailsLabel.textAlignment = MBLabelAlignmentCenter;
+	detailsLabel.textAlignment = NSTextAlignmentCenter;
 	detailsLabel.opaque = NO;
 	detailsLabel.backgroundColor = [UIColor clearColor];
 	detailsLabel.textColor = self.detailsLabelColor;

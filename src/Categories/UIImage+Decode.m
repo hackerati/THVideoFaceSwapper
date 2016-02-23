@@ -27,7 +27,7 @@
     CGColorSpaceRelease(colorSpace);
     if (!context) return nil;
     
-    CGRect rect = (CGRect){CGPointZero,{CGImageGetWidth(imageRef), CGImageGetHeight(imageRef)}};
+    CGRect rect = (CGRect){CGPointZero,{static_cast<CGFloat>(CGImageGetWidth(imageRef)), static_cast<CGFloat>(CGImageGetHeight(imageRef))}};
     CGContextDrawImage(context, rect, imageRef);
     CGImageRef decompressedImageRef = CGBitmapContextCreateImage(context);
     CGContextRelease(context);

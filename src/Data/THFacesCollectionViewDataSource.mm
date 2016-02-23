@@ -29,7 +29,7 @@ static const string kTHSavedImagesExtension = ".png";
     ofApp *mainApp;
 }
 
-@property (weak, nonatomic) UICollectionView *collectionView;
+@property (nonatomic) UICollectionView *collectionView;
 @property (nonatomic) NSMutableArray *savedFaces;
 @property (nonatomic) NSMutableSet *indexPathsToDelete;
 
@@ -189,8 +189,8 @@ static const string kTHSavedImagesExtension = ".png";
 
 UIImage * uiimageFromOFImage(ofImage inputImage)
 {
-    int width = inputImage.width;
-    int height = inputImage.height;
+    int width = inputImage.getWidth();
+    int height = inputImage.getHeight();
     float pixelForChannel = 3;
     CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, inputImage.getPixels(), width*height*pixelForChannel, NULL);
     CGImageRef imageRef = CGImageCreate(width, height, 8, 24, pixelForChannel*width, CGColorSpaceCreateDeviceRGB(), kCGBitmapByteOrderDefault, provider, NULL, NO, kCGRenderingIntentDefault);
